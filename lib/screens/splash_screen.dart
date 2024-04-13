@@ -1,5 +1,7 @@
+import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../utilities/utilities.dart';
+import 'screens.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -50,7 +52,8 @@ class _SplashScreenState extends State<SplashScreen> {
                       const Text(
                           "Thank you for giving us access to storage and camera"),
                       TextButton(
-                        onPressed: () => {},
+                        // Navigate to home screen when "continue" button clicked
+                        onPressed: () => {HomeScreen.navigate(context)},
                         child: const Text("continue"),
                       ),
                     ],

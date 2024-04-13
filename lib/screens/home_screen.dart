@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
-  // static method to navigate to this page
-  static navigate(BuildContext ctx) {
-    Navigator.push(
-      ctx,
+  static navigate(context) {
+    Navigator.pushReplacement(
+      context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const HomeScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+          var begin = const Offset(1.0, 0.0);
+          var end = Offset.zero;
+          var curve = Curves.easeInOutQuart;
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
           );
         },
       ),
@@ -31,10 +27,28 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Home sweet home ! "),
-      ),
-    );
+    return Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: const Text("Home"),
+          actions: [
+            IconButton(
+                onPressed: () => {}, icon: const Icon(Icons.search_rounded)),
+            const SizedBox(
+              width: 10,
+            )
+          ],
+        ),
+        body: const Center(
+          child: Text("To be implemented"),
+        ),
+        bottomNavigationBar: BottomNavigationBar(items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.list_rounded), label: "Files"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_3_rounded), label: "Me")
+        ]));
   }
 }
