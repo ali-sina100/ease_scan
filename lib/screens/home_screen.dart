@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -25,30 +27,50 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  captureImage() async {
+    // Generate filepath for saving
+    String imagePath = join((await getApplicationSupportDirectory()).path,
+        "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
+    try {
+      //TODO
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          title: const Text("Home"),
-          actions: [
-            IconButton(
-                onPressed: () => {}, icon: const Icon(Icons.search_rounded)),
-            const SizedBox(
-              width: 10,
-            )
-          ],
-        ),
-        body: const Center(
-          child: Text("To be implemented"),
-        ),
-        bottomNavigationBar: BottomNavigationBar(items: const [
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text("Home"),
+        actions: [
+          IconButton(
+              onPressed: () => {}, icon: const Icon(Icons.search_rounded)),
+          const SizedBox(
+            width: 10,
+          )
+        ],
+      ),
+      body: const Center(
+        child: Text("To be implemented"),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: Text("+"),
+        onPressed: () {
+          captureImage();
+        },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded), label: "Home"),
           BottomNavigationBarItem(
               icon: Icon(Icons.list_rounded), label: "Files"),
           BottomNavigationBarItem(
               icon: Icon(Icons.person_3_rounded), label: "Me")
-        ]));
+        ],
+      ),
+    );
   }
 }

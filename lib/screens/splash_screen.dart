@@ -1,7 +1,7 @@
-import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../utilities/utilities.dart';
 import 'screens.dart';
+import '../features/features.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,6 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
       (value) => {
         if (value) {permissions_granted = value},
         setState(() {
+          LoginPage.navigate(context);
+
           loading = false;
         })
       },
@@ -33,9 +35,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   requestPermission() async {
     await MyPermissionHandler.requestPermission().then((value) {
-      setState(() {
-        permissions_granted = value;
-      });
+      //Check if the permission granted then navigate to other page
+      if (value) {
+        LoginPage.navigate(context);
+      }
     });
   }
 
@@ -45,29 +48,16 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: loading
             ? const CircularProgressIndicator()
-            : permissions_granted
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                          "Thank you for giving us access to storage and camera"),
-                      TextButton(
-                        // Navigate to home screen when "continue" button clicked
-                        onPressed: () => {HomeScreen.navigate(context)},
-                        child: const Text("continue"),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("We need permission to camera and storage"),
-                      TextButton(
-                        onPressed: () => {requestPermission()},
-                        child: const Text("Give permission"),
-                      ),
-                    ],
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("We need permission to camera and storage"),
+                  TextButton(
+                    onPressed: () => {requestPermission()},
+                    child: const Text("Give permission"),
                   ),
+                ],
+              ),
       ),
     );
   }
