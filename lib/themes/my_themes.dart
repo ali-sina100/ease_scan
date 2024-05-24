@@ -9,4 +9,6 @@ class MyThemes {
 
   static ThemeData light_theme =
       ThemeData(colorScheme: const ColorScheme.light(primary: Colors.blue,));
+
+  
 }

@@ -1,3 +1,6 @@
+import 'package:ease_scan/features/features.dart';
+import 'package:provider/provider.dart';
+
 import 'signup_page.dart';
 import 'package:flutter/material.dart';
 import '../../../screens/screens.dart';
@@ -69,35 +72,58 @@ class LoginPage extends StatelessWidget {
   }
 
   _inputField(context) {
+    String _email = '';
+    String _password = '';
+    AuthenticationProvider _authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Email Text field
         TextField(
           decoration: InputDecoration(
-              hintText: "Username",
+              hintText: "Email",
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
                   borderSide: BorderSide.none),
               filled: true,
               fillColor: Colors.blue.withOpacity(0.1),
               prefixIcon: const Icon(Icons.person)),
+          onChanged: (value) {
+            _email = value;
+            print(_email);
+            print(_password);
+          },
         ),
         const SizedBox(height: 10),
+        // Password TextField
         TextField(
-          decoration: InputDecoration(
-            hintText: "Password",
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide.none),
-            filled: true,
-            fillColor: Colors.blue.withOpacity(0.1),
-            prefixIcon: const Icon(Icons.password),
-          ),
-          obscureText: true,
-        ),
+            decoration: InputDecoration(
+              hintText: "Password",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none),
+              filled: true,
+              fillColor: Colors.blue.withOpacity(0.1),
+              prefixIcon: const Icon(Icons.password),
+            ),
+            obscureText: true,
+            onChanged: (value) {
+              _password = value;
+              print(_email);
+              print(_password);
+            }),
         const SizedBox(height: 10),
+        // login with email and password button
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            _authenticationProvider
+                .signInWithEmailPassword(_email, _password)
+                .then((value) {
+              HomeScreen.navigate(context);
+            });
+          },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -111,6 +137,8 @@ class LoginPage extends StatelessWidget {
         const SizedBox(
           height: 10,
         ),
+
+        // SignIn with google Button
         Container(
           height: 45,
           decoration: BoxDecoration(
@@ -128,7 +156,9 @@ class LoginPage extends StatelessWidget {
             ],
           ),
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              _authenticationProvider.signInWithGoogle();
+            },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -158,6 +188,7 @@ class LoginPage extends StatelessWidget {
         const SizedBox(
           height: 10,
         ),
+        // Skip button
         Container(
           height: 45,
           decoration: BoxDecoration(

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "855151261976",
+    "project_id": "ease-scan-fyp",
+    "storage_bucket": "ease-scan-fyp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855151261976:android:c7da8b009f265e6529866d",
+        "android_client_info": {
+          "package_name": "com.example.ease_scan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855151261976-ssjqiju49bqr7sc3rgbjgrtl15s3m9b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNcvG4Tr4e9Jhu1_SK0FIz4xik-ypGsqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855151261976-ssjqiju49bqr7sc3rgbjgrtl15s3m9b3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "855151261976-ea0mqpmvev1slk6miffmigdoditf23sg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.easeScan"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utilities/utilities.dart';
-import 'screens.dart';
 import '../features/features.dart';
+import 'screens.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,7 +14,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool loading = true;
   late bool permissions_granted = false;
-
+  late AuthenticationProvider _authenticationProvider;
   @override
   void initState() {
     checkPermission();
@@ -25,8 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
       (value) => {
         if (value) {permissions_granted = value},
         setState(() {
-          LoginPage.navigate(context);
-
+          _authenticationProvider.isUserSignedIn()
+              ? HomeScreen.navigate(context)
+              : LoginPage.navigate(context);
           loading = false;
         })
       },
@@ -37,6 +39,10 @@ class _SplashScreenState extends State<SplashScreen> {
     await MyPermissionHandler.requestPermission().then((value) {
       //Check if the permission granted then navigate to other page
       if (value) {
+        _authenticationProvider.isUserSignedIn()
+            ? HomeScreen.navigate(context)
+            : LoginPage.navigate(context);
+
         LoginPage.navigate(context);
       }
     });
@@ -44,6 +50,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Scaffold build(BuildContext context) {
+    _authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+
     return Scaffold(
       body: Center(
         child: loading
