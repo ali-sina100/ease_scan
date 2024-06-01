@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-           const SettingsScreen(),
+            const SettingsScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -50,7 +50,7 @@ class SettingsScreen extends StatelessWidget {
 
             // List tile for changing filter
             ListTile(
-              title: const Text('Change Filter'),
+              title: const Text('Default Filter'),
               // trailing with drop down and list of filters
               trailing: DropdownButton<String>(
                 value: 'Default',
@@ -72,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
 
             // list tile to change the font size
             ListTile(
-              title: const Text('Change Font Size'),
+              title: const Text('Font size'),
               // trailing with drop down and list of font sizes
               trailing: DropdownButton<String>(
                 value: 'Default',

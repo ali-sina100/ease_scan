@@ -1,8 +1,7 @@
 import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import '../features/auto_crop_scan/auto_crop_scan.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,14 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
 
   captureImage() async {
-    // Generate filepath for saving
-    String imagePath = join((await getApplicationSupportDirectory()).path,
-        "${(DateTime.now().millisecondsSinceEpoch / 1000).round()}.jpeg");
-    try {
-      //TODO
-    } catch (e) {
-      print(e);
-    }
+    CameraScanPage.navigate(context);
   }
 
   @override
@@ -99,19 +91,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Floating action button to capture image
       floatingActionButton: FloatingActionButton.extended(
-        label: const Text("+"),
+        label:const  Icon(Icons.camera_alt_rounded),
         onPressed: () {
           captureImage();
         },
       ),
       // Bottom navigation bar to switch between tabs
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
+        currentIndex: currentTabIndex,
         onTap: (index) {
           setState(() {
             currentTabIndex = index;
           });
         },
+        // Navigation bar items (Home, Files, Me)
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded), label: "Home"),
@@ -134,7 +127,7 @@ class Home extends StatelessWidget {
     return const Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children: [
         Text("Home"),
       ],
     ));

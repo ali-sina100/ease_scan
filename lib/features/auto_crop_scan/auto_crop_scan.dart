@@ -1,0 +1,1 @@
+export 'pages/camera_scan_page.dart';

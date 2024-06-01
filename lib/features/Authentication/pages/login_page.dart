@@ -1,7 +1,6 @@
 import 'package:ease_scan/features/features.dart';
 import 'package:provider/provider.dart';
 
-import 'signup_page.dart';
 import 'package:flutter/material.dart';
 import '../../../screens/screens.dart';
 
