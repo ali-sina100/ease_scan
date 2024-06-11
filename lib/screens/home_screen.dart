@@ -35,8 +35,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
 
-  captureImage() async {
-    CameraScanPage.navigate(context);
+  goToCameraViewPage() async {
+    CameraViewPage.navigate(context);
   }
 
   @override
@@ -91,9 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Floating action button to capture image
       floatingActionButton: FloatingActionButton.extended(
-        label:const  Icon(Icons.camera_alt_rounded),
+        label: const Icon(Icons.camera_alt_rounded),
         onPressed: () {
-          captureImage();
+          goToCameraViewPage();
         },
       ),
       // Bottom navigation bar to switch between tabs
