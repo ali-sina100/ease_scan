@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../screens/screens.dart';
+import '../provider/authetication_provider.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatelessWidget {
-  const SignupPage({super.key});
+  SignupPage({super.key});
 
   static navigate(context) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const SignupPage(),
+        pageBuilder: (context, animation, secondaryAnimation) => SignupPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -26,167 +28,213 @@ class SignupPage extends StatelessWidget {
     );
   }
 
+  String _email = '';
+  String _password = '';
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            height: MediaQuery.of(context).size.height - 50,
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    const SizedBox(height: 60.0),
-                    const Text(
+    AuthenticationProvider _authenticationProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          height: MediaQuery.of(context).size.height - 50,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  const SizedBox(height: 60.0),
+                  const Text(
+                    "Sign up",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Create your account",
+                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                  )
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  // User name
+                  TextField(
+                    cursorColor: Colors.black54,
+                    decoration: InputDecoration(
+                      hintText: "Username",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none),
+                      fillColor: Colors.blue.withOpacity(0.1),
+                      filled: true,
+                      prefixIcon: const Icon(Icons.person),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Email
+                  TextField(
+                    cursorColor: Colors.black54,
+                    decoration: InputDecoration(
+                        hintText: "Email",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none),
+                        fillColor: Colors.blue.withOpacity(0.1),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.email)),
+                    onChanged: (value) => _email = value,
+                  ),
+                  const SizedBox(height: 20),
+                  // Password
+                  TextField(
+                    cursorColor: Colors.black54,
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none),
+                      fillColor: Colors.blue.withOpacity(0.1),
+                      filled: true,
+                      prefixIcon: const Icon(Icons.password),
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 20),
+                  // Confirm password
+                  TextField(
+                    cursorColor: Colors.black54,
+                    decoration: InputDecoration(
+                      hintText: "Confirm Password",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none),
+                      fillColor: Colors.blue.withOpacity(0.1),
+                      filled: true,
+                      prefixIcon: const Icon(Icons.password),
+                    ),
+                    obscureText: true,
+                    onChanged: (value) => _password = value,
+                  ),
+                ],
+              ),
+              Container(
+                  padding: const EdgeInsets.only(top: 3, left: 3),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        await _authenticationProvider
+                            .registerWithEmailPassword(_email, _password)
+                            .then((value) {
+                          // this shows a snackbar that user has registered successfully
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("User registered successfully"),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+
+                          LoginPage.navigate(context);
+                        });
+                      } catch (e) {
+                        // this shows a snackbar that user has registered successfully
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text("Error registering user"),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: const Text(
                       "Sign up",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Create your account",
-                      style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                    )
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Username",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none),
-                        fillColor: Colors.blue.withOpacity(0.1),
-                        filled: true,
-                        prefixIcon: const Icon(Icons.person),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      decoration: InputDecoration(
-                          hintText: "Email",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              borderSide: BorderSide.none),
-                          fillColor: Colors.blue.withOpacity(0.1),
-                          filled: true,
-                          prefixIcon: const Icon(Icons.email)),
-                    ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none),
-                        fillColor: Colors.blue.withOpacity(0.1),
-                        filled: true,
-                        prefixIcon: const Icon(Icons.password),
-                      ),
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Confirm Password",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none),
-                        fillColor: Colors.blue.withOpacity(0.1),
-                        filled: true,
-                        prefixIcon: const Icon(Icons.password),
-                      ),
-                      obscureText: true,
+                  )),
+              const Center(child: Text("Or")),
+              // Sign up with google container
+              Container(
+                height: 45,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(
+                    color: Colors.blue,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                      offset: const Offset(0, 1), // changes position of shadow
                     ),
                   ],
                 ),
-                Container(
-                    padding: const EdgeInsets.only(top: 3, left: 3),
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Sign up",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
+                // With google
+                child: TextButton(
+                  // When the sign in with google button pressed
+                  onPressed: () {
+                    // If Sign in was a success then navigate to home screen
+                    _authenticationProvider.signInWithGoogle().then((value) {
+                      if (value != null) {
+                        HomeScreen.navigate(context);
+                      }
+                    });
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 30.0,
+                        width: 30.0,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage(
+                                  'assets/images/authentication/google.png'),
+                              fit: BoxFit.cover),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.blue,
-                      ),
-                    )),
-                const Center(child: Text("Or")),
-                Container(
-                  height: 45,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(
-                      color: Colors.blue,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.5),
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset:
-                            const Offset(0, 1), // changes position of shadow
+                      const SizedBox(width: 18),
+                      const Text(
+                        "Sign up with Google",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                        ),
                       ),
                     ],
                   ),
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 30.0,
-                          width: 30.0,
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/authentication/google.png'),
-                                fit: BoxFit.cover),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 18),
-                        const Text(
-                          "Sign In with Google",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text("Already have an account?"),
-                    TextButton(
-                        onPressed: () {
-                          LoginPage.navigate(context);
-                        },
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(color: Colors.blue),
-                        ))
-                  ],
-                )
-              ],
-            ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text("Already have an account?"),
+                  TextButton(
+                      onPressed: () {
+                        LoginPage.navigate(context);
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.blue),
+                      ))
+                ],
+              )
+            ],
           ),
         ),
       ),

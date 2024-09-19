@@ -18,6 +18,7 @@ class AuthenticationProvider with ChangeNotifier {
 
     _firebaseRepository = FirebaseRepository(
         firebaseAuth: _firebaseAuth, googleSignIn: _googleSignIn);
+    _user = FirebaseAuth.instance.currentUser;
   }
 
   User? get user => _user;
@@ -30,8 +31,7 @@ class AuthenticationProvider with ChangeNotifier {
       _user = user;
       notifyListeners();
     } catch (e) {
-      print('Error registering user: $e');
-      throw e;
+      rethrow; 
     }
   }
 
@@ -41,38 +41,56 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   // Method to get the current user
-  User? getUser(){
-    return _firebaseAuth.currentUser; 
+  User? getUser() {
+    return _firebaseAuth.currentUser;
+  }
+
+  // Method to send verification email
+  void sendVerificationEmail() {
+    _user!.sendEmailVerification();
+  }
+
+  // is user verified
+  bool isUserVerified() {
+    // If user is not verified then send verification email
+    if (!_user!.emailVerified) {
+      sendVerificationEmail();
+    }
+    return _user!.emailVerified;
   }
 
   // Method to sign in a user with email and password
-  Future<void> signInWithEmailPassword(String email, String password) async {
+  Future<User?> signInWithEmailPassword(String email, String password) async {
     try {
       User? user =
           await _firebaseRepository.signInWithEmailPassword(email, password);
       _user = user;
       notifyListeners();
+      return user;
     } catch (e) {
-      print('Error signing in user: $e');
-      throw e;
+      rethrow;
     }
   }
 
   // Method to sign in a user with Google
-  Future<void> signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     try {
       User? user = await _firebaseRepository.signInWithGoogle();
       _user = user;
       notifyListeners();
+      return user;
     } catch (e) {
-      print('Error signing in with Google: $e');
       throw e;
     }
   }
 
   // Method to sign out the current user
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await FirebaseAuth.instance.signOut();
+    if (await GoogleSignIn().isSignedIn()) {
+      await GoogleSignIn().signOut();
+      _googleSignIn.signOut();
+    }
     _user = null;
     notifyListeners();
   }

@@ -1,14 +1,16 @@
 import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
-import '../features/auto_crop_scan/auto_crop_scan.dart';
 import 'package:provider/provider.dart';
+
+import '../features/auto_crop_scan/pages/image_preview_page.dart';
+import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
   static navigate(context) {
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
@@ -25,6 +27,8 @@ class HomeScreen extends StatefulWidget {
           );
         },
       ),
+      (Route<dynamic> route) =>
+          false, // This condition removes all previous routes
     );
   }
 
@@ -57,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
-              child: Text('Drawer Header'),
+              child: Text('Welcome to the App!'),
             ),
             ListTile(
               title: const Text("Settings"),
@@ -119,18 +123,60 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // Screen to be shown in the home tab
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {});
+        },
         child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("Home"),
-      ],
-    ));
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder<List<String>>(
+              future: FileRepository().getAllJPGFiles(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return const Text("Error");
+                } else {
+                  List<String> jpgFiles = snapshot.data ?? [];
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: jpgFiles.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              ImagePreviewPage.navigate(
+                                  context, jpgFiles[index]);
+                            },
+                            child: ListTile(
+                              tileColor: Colors.grey[300],
+                              title: Text(jpgFiles[index].split('/').last),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -159,26 +205,29 @@ class MeScreen extends StatelessWidget {
     AuthenticationProvider _authenticationProvider =
         Provider.of<AuthenticationProvider>(context, listen: true);
     return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // show profile picture
-        const CircleAvatar(
-          radius: 50,
-          child: Icon(Icons.person_rounded),
-        ),
-        // show email
-        Text(
-            "Email: ${_authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // show profile picture
+          const CircleAvatar(
+            radius: 50,
+            child: Icon(Icons.person_rounded),
+          ),
+          // show email
+          Text(
+              "Email: ${_authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
 
-        // show signout button
-        ElevatedButton(
-          onPressed: () {
-            _authenticationProvider.signOut();
-          },
-          child: const Text("Sign Out"),
-        )
-      ],
-    ));
+          // show signout button
+          ElevatedButton(
+            onPressed: () {
+              _authenticationProvider.signOut().then((value) {
+                LoginPage.navigate(context);
+              });
+            },
+            child: const Text("Sign Out"),
+          )
+        ],
+      ),
+    );
   }
 }

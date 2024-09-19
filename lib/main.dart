@@ -12,7 +12,6 @@ void main() async {
   // Initialized the Firebase app
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  
   );
 
   runApp(
@@ -22,7 +21,7 @@ void main() async {
         // Provider for authentication
         ChangeNotifierProvider(
           create: (context) => AuthenticationProvider(),
-        )
+        ), 
       ],
       child: const App(),
     ),

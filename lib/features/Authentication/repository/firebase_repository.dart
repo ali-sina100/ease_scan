@@ -16,12 +16,10 @@ class FirebaseRepository {
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
-        
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print('Failed to register user: $e');
-      throw e;
+      rethrow; 
     }
   }
 
@@ -35,12 +33,9 @@ class FirebaseRepository {
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-     
-      throw e;
+      rethrow;
     }
   }
-
-
 
   // Method to sign in a user with Google
   Future<User?> signInWithGoogle() async {
@@ -55,14 +50,16 @@ class FirebaseRepository {
         );
         final UserCredential userCredential =
             await _firebaseAuth.signInWithCredential(credential);
-        print("---------------------------------------");
-        print(userCredential.user);
         return userCredential.user;
       }
-      return null;
+      
+      else {
+        return null;
+      }
     } on FirebaseAuthException catch (e) {
-      print('Failed to sign in with Google: $e');
-      throw e;
+      rethrow;
     }
   }
+
+
 }

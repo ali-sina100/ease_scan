@@ -7,12 +7,15 @@ import '../models/user_data.dart';
 class UserDataRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  
+
   // This method returns the user data from the firestore
   Future<UserData> getUserData(String uid) async {
     final DocumentSnapshot<Map<String, dynamic>> userDoc =
         await _firestore.collection('users').doc(uid).get();
 
     return UserData.fromMap(userDoc.data()!);
+    
   }
 
   // This method updates the user data in the firestore

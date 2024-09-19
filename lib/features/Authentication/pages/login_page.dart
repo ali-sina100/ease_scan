@@ -81,6 +81,7 @@ class LoginPage extends StatelessWidget {
       children: [
         // Email Text field
         TextField(
+          cursorColor: Colors.black54,
           decoration: InputDecoration(
               hintText: "Email",
               border: OutlineInputBorder(
@@ -91,13 +92,12 @@ class LoginPage extends StatelessWidget {
               prefixIcon: const Icon(Icons.person)),
           onChanged: (value) {
             _email = value;
-            print(_email);
-            print(_password);
           },
         ),
         const SizedBox(height: 10),
         // Password TextField
         TextField(
+            cursorColor: Colors.black54,
             decoration: InputDecoration(
               hintText: "Password",
               border: OutlineInputBorder(
@@ -110,18 +110,22 @@ class LoginPage extends StatelessWidget {
             obscureText: true,
             onChanged: (value) {
               _password = value;
-              print(_email);
-              print(_password);
             }),
         const SizedBox(height: 10),
         // login with email and password button
         ElevatedButton(
+          // When Login button pressed
           onPressed: () {
             _authenticationProvider
                 .signInWithEmailPassword(_email, _password)
-                .then((value) {
-              HomeScreen.navigate(context);
-            });
+                .then(
+              (value) {
+                // Check if user email Authenticated
+                _authenticationProvider.isUserVerified()
+                    ? HomeScreen.navigate(context)
+                    : EmailVerificationScreen.navigate(context);
+              },
+            );
           },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
@@ -155,8 +159,14 @@ class LoginPage extends StatelessWidget {
             ],
           ),
           child: TextButton(
+            // When the sign in with google button pressed
             onPressed: () {
-              _authenticationProvider.signInWithGoogle();
+              // If Sign in was a success then navigate to home screen
+              _authenticationProvider.signInWithGoogle().then((value) {
+                if (value != null) {
+                  HomeScreen.navigate(context);
+                }
+              });
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -186,36 +196,6 @@ class LoginPage extends StatelessWidget {
         ),
         const SizedBox(
           height: 10,
-        ),
-        // Skip button
-        Container(
-          height: 45,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: Colors.blue,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.white.withOpacity(0.5),
-                spreadRadius: 1,
-                blurRadius: 1,
-                offset: const Offset(0, 1), // changes position of shadow
-              ),
-            ],
-          ),
-          child: TextButton(
-            onPressed: () {
-              HomeScreen.navigate(context);
-            },
-            child: const Text(
-              "Skip",
-              style: TextStyle(
-                fontSize: 16,
-                color: Color.fromARGB(255, 100, 100, 100),
-              ),
-            ),
-          ),
         ),
       ],
     );

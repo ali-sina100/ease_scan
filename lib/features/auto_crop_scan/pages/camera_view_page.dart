@@ -1,11 +1,11 @@
 // This page contains code to handle capturing image from camera and also import it from gallery
 
-import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import '../repositories/file_repository.dart';
 import 'image_preview_page.dart';
 
 class CameraViewPage extends StatefulWidget {
@@ -39,10 +39,12 @@ class CameraViewPage extends StatefulWidget {
 }
 
 class _CameraViewPageState extends State<CameraViewPage> {
+
   CameraController? controller = null;
   late List<CameraDescription> cameras;
   bool cameraInitialized = false;
   @override
+
   void initState() {
     checkForCameras().then((value) {
       _initializeController();
@@ -60,18 +62,28 @@ class _CameraViewPageState extends State<CameraViewPage> {
     controller = CameraController(cameras[0], ResolutionPreset.max)
       ..setFocusMode(FocusMode.auto);
     controller!.initialize().then((_) {
+
       if (!mounted) {
         return;
       }
-      setState(() {
-        cameraInitialized = true;
-      });
+
+    setState(() {
+
+      cameraInitialized = true;
+      
+    }
+    
+        );
     });
   }
 
   // go to ImagePreviewPage
-  goToImagePreviewPage(String path) {
-    ImagePreviewPage.navigate(context, path);
+  goToImagePreviewPage(String path) async {
+    // this code will save the file into project directory/scanned_images
+    final file = File(path);
+    String newPath = await FileRepository().saveJPGFile(file);
+
+    ImagePreviewPage.navigate(context, newPath);
   }
 
   @override
@@ -91,10 +103,13 @@ class _CameraViewPageState extends State<CameraViewPage> {
                   children: [
                     // top controls bar
                     Padding(
+                      
                       padding: const EdgeInsets.all(15),
                       child: Row(
+
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+
                           // Close Icon camera button
                           IconButton(
                               onPressed: () {
@@ -102,6 +117,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
                               },
                               icon:
                                   const Icon(Icons.close, color: Colors.white)),
+
                           // Flash button
                           IconButton(
                             onPressed: () {
@@ -111,16 +127,21 @@ class _CameraViewPageState extends State<CameraViewPage> {
                                       ? FlashMode.torch
                                       : FlashMode.off);
                             },
+
                             icon: const Icon(Icons.flash_on_rounded,
                                 color: Colors.white),
                           ),
+
                         ],
+
                       ),
+
                     ),
+
                     // Camera preview
                     CameraPreview(controller!),
+                     // bottom controls bar
 
-                    // bottom controls bar
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 15, horizontal: 0),
@@ -188,6 +209,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
               : const Center(
                   child: CircularProgressIndicator(),
                 ),
-        ));
+            )
+    );
   }
 }

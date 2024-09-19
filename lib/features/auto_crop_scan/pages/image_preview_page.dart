@@ -11,13 +11,13 @@ Future<EdgeDetectionResult> detectEdges(String imagePath) async {
 }
 
 // Top level function for cropping image
-Future<String> cropImage(String imagePath, EdgeDetectionResult edgeDetectionResult) async {
+// Future<String> cropImage(String imagePath, EdgeDetectionResult edgeDetectionResult) async {
 
    
    
 
-return "re"; 
-}
+// return "re"; 
+// }
 
 class ImagePreviewPage extends StatefulWidget {
   String imagePath;

@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '855151261976',
     projectId: 'ease-scan-fyp',
     storageBucket: 'ease-scan-fyp.appspot.com',
+    androidClientId: '855151261976-frf58nb2kuqn4vb6h8ko9geganb5jnlb.apps.googleusercontent.com',
     iosClientId: '855151261976-ea0mqpmvev1slk6miffmigdoditf23sg.apps.googleusercontent.com',
     iosBundleId: 'com.example.easeScan',
   );
