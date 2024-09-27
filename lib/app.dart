@@ -10,18 +10,32 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     AuthenticationProvider authProvider =
         Provider.of<AuthenticationProvider>(context);
+
     return MaterialApp(
+
       debugShowCheckedModeBanner: false,
+
       theme: MyThemes.light_theme,
+
       darkTheme: MyThemes.dark_theme,
+
       themeMode: ThemeMode.light,
+
       home: authProvider.isUserSignedIn()
+
           ? authProvider.isUserVerified()
+
               ? HomeScreen()
+
               : const EmailVerificationScreen()
-          : const LoginPage(),
+
+          : LoginPage(),
+
     );
+
   }
+  
 }

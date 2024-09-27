@@ -1,10 +1,13 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../screens/screens.dart';
 import '../provider/authetication_provider.dart';
 import 'login_page.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   SignupPage({super.key});
 
   static navigate(context) {
@@ -28,8 +31,16 @@ class SignupPage extends StatelessWidget {
     );
   }
 
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
   String _email = '';
+
   String _password = '';
+
+  bool signupProcess = false;
 
   @override
   Widget build(BuildContext context) {
@@ -126,31 +137,100 @@ class SignupPage extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                  padding: const EdgeInsets.only(top: 3, left: 3),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        await _authenticationProvider
+              // Signup button
+              // Login with email and password button
+              Builder(
+                builder: (BuildContext innerContext) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      if (_email.isNotEmpty && _password.isNotEmpty) {
+                        String errorMessage;
+                        // update the process indicator
+                        setState(() {
+                          signupProcess = true;
+                        });
+                        // Call the register method
+                        _authenticationProvider
                             .registerWithEmailPassword(_email, _password)
                             .then((value) {
-                          // this shows a snackbar that user has registered successfully
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("User registered successfully"),
-                              duration: Duration(seconds: 2),
+                          setState(() {
+                            signupProcess = false;
+                          });
+
+                          errorMessage = "Your account registered please login";
+                          ScaffoldMessenger.of(innerContext).showSnackBar(
+                            SnackBar(
+                              content: Text(errorMessage),
+                              backgroundColor: Colors.green,
                             ),
                           );
-
-                          LoginPage.navigate(context);
+                          // After successfully account registered, then wait two seconds and then navigate to login
+                          Timer.periodic(
+                            const Duration(seconds: 2),
+                            (timer) {
+                              LoginPage.navigate(context);
+                            },
+                          );
+                        }).catchError((error) {
+                          setState(() {
+                            signupProcess = false;
+                          });
+                          if (error is FirebaseAuthException) {
+                            switch (error.code) {
+                              case "ERROR_EMAIL_ALREADY_IN_USE":
+                              case "account-exists-with-different-credential":
+                              case "email-already-in-use":
+                                errorMessage =
+                                    "Email already used. Go to login page.";
+                                break;
+                              case "ERROR_WRONG_PASSWORD":
+                              case "wrong-password":
+                              case "invalid-credential":
+                                errorMessage =
+                                    "Wrong email/password combination.";
+                                break;
+                              case "ERROR_USER_NOT_FOUND":
+                              case "user-not-found":
+                                errorMessage = "No user found with this email.";
+                                break;
+                              case "ERROR_USER_DISABLED":
+                              case "user-disabled":
+                                errorMessage = "User disabled.";
+                                break;
+                              case "ERROR_TOO_MANY_REQUESTS":
+                              case "operation-not-allowed":
+                                errorMessage =
+                                    "Too many requests to log into this account.";
+                                break;
+                              case "ERROR_OPERATION_NOT_ALLOWED":
+                              case "operation-not-allowed":
+                                errorMessage =
+                                    "Server error, please try again later.";
+                                break;
+                              case "ERROR_INVALID_EMAIL":
+                              case "invalid-email":
+                                errorMessage = "Email address is invalid.";
+                                break;
+                              default:
+                                errorMessage =
+                                    "Login failed. Please try again.";
+                                break;
+                            }
+                          } else {
+                            errorMessage = 'An unexpected error occurred.';
+                          }
+                          ScaffoldMessenger.of(innerContext).showSnackBar(
+                            SnackBar(
+                              content: Text(errorMessage),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
                         });
-                      } catch (e) {
-                        // this shows a snackbar that user has registered successfully
-                        ScaffoldMessenger.of(context).showSnackBar(
+                      } else {
+                        ScaffoldMessenger.of(innerContext).showSnackBar(
                           const SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text("Error registering user"),
-                            duration: Duration(seconds: 2),
+                            content: Text('Please fill the form'),
+                            backgroundColor: Colors.orange,
                           ),
                         );
                       }
@@ -164,8 +244,11 @@ class SignupPage extends StatelessWidget {
                       "Sign up",
                       style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
-                  )),
-              const Center(child: Text("Or")),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+
               // Sign up with google container
               Container(
                 height: 45,

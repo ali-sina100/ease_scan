@@ -101,7 +101,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 "Check you email",
                 style: TextStyle(
                     fontSize: 24,
-                    color: Colors.blue,
+                    fontFamily: "SF Pro Text",
+                    color: Colors.black87,
                     fontWeight: FontWeight.w500),
               ),
               const SizedBox(
@@ -113,7 +114,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 "We have sent a verification link to",
                 style: TextStyle(
                     fontSize: 15,
-                    color: Colors.blue,
+                    color: Colors.black87,
                     fontWeight: FontWeight.w500),
               ),
               const SizedBox(
@@ -126,7 +127,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     : "Not signed In",
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: Colors.blue,
+                  color: Colors.black87,
                   fontSize: 14,
                 ),
               ),
@@ -174,10 +175,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 children: [
                   const Text(
                     "Didn't recieve the email?",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color.fromARGB(255, 8, 72, 174),
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   TextButton(
                     onPressed: () {
@@ -192,9 +190,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     child: Text(
                       "Click to resend",
                       style: TextStyle(
-                        color: canResendEmail
-                            ? const Color.fromARGB(255, 8, 72, 174)
-                            : Colors.grey,
+                        color: canResendEmail ? Colors.blue : Colors.grey,
                       ),
                     ),
                   ),
@@ -204,10 +200,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.arrow_back,
-                    color: Color.fromARGB(255, 8, 72, 174),
-                  ),
+                  const Icon(Icons.arrow_back, color: Colors.blue),
                   TextButton(
                     onPressed: () {
                       LoginPage.navigate(context);
@@ -215,9 +208,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     child: const Text(
                       "back to log in",
                       style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color.fromARGB(255, 8, 72, 174),
-                      ),
+                          fontWeight: FontWeight.w500, color: Colors.blue),
                     ),
                   ),
                 ],

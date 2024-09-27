@@ -18,8 +18,8 @@ class FirebaseRepository {
         password: password,
       );
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
-      rethrow; 
+    } on FirebaseAuthException {
+      rethrow;
     }
   }
 
@@ -32,7 +32,7 @@ class FirebaseRepository {
         password: password,
       );
       return userCredential.user;
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       rethrow;
     }
   }
@@ -51,15 +51,11 @@ class FirebaseRepository {
         final UserCredential userCredential =
             await _firebaseAuth.signInWithCredential(credential);
         return userCredential.user;
-      }
-      
-      else {
+      } else {
         return null;
       }
     } on FirebaseAuthException catch (e) {
       rethrow;
     }
   }
-
-
 }

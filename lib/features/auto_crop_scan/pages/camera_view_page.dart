@@ -39,12 +39,10 @@ class CameraViewPage extends StatefulWidget {
 }
 
 class _CameraViewPageState extends State<CameraViewPage> {
-
   CameraController? controller = null;
   late List<CameraDescription> cameras;
   bool cameraInitialized = false;
   @override
-
   void initState() {
     checkForCameras().then((value) {
       _initializeController();
@@ -62,18 +60,13 @@ class _CameraViewPageState extends State<CameraViewPage> {
     controller = CameraController(cameras[0], ResolutionPreset.max)
       ..setFocusMode(FocusMode.auto);
     controller!.initialize().then((_) {
-
       if (!mounted) {
         return;
       }
 
-    setState(() {
-
-      cameraInitialized = true;
-      
-    }
-    
-        );
+      setState(() {
+        cameraInitialized = true;
+      });
     });
   }
 
@@ -83,7 +76,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
     final file = File(path);
     String newPath = await FileRepository().saveJPGFile(file);
 
-    ImagePreviewPage.navigate(context, newPath);
+    //ImagePreviewPage.navigate(context, newPath);
   }
 
   @override
@@ -103,13 +96,10 @@ class _CameraViewPageState extends State<CameraViewPage> {
                   children: [
                     // top controls bar
                     Padding(
-                      
                       padding: const EdgeInsets.all(15),
                       child: Row(
-
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-
                           // Close Icon camera button
                           IconButton(
                               onPressed: () {
@@ -127,20 +117,16 @@ class _CameraViewPageState extends State<CameraViewPage> {
                                       ? FlashMode.torch
                                       : FlashMode.off);
                             },
-
                             icon: const Icon(Icons.flash_on_rounded,
                                 color: Colors.white),
                           ),
-
                         ],
-
                       ),
-
                     ),
 
                     // Camera preview
                     CameraPreview(controller!),
-                     // bottom controls bar
+                    // bottom controls bar
 
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -209,7 +195,6 @@ class _CameraViewPageState extends State<CameraViewPage> {
               : const Center(
                   child: CircularProgressIndicator(),
                 ),
-            )
-    );
+        ));
   }
 }

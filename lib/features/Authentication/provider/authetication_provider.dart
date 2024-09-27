@@ -31,7 +31,7 @@ class AuthenticationProvider with ChangeNotifier {
       _user = user;
       notifyListeners();
     } catch (e) {
-      rethrow; 
+      rethrow;
     }
   }
 
@@ -43,6 +43,16 @@ class AuthenticationProvider with ChangeNotifier {
   // Method to get the current user
   User? getUser() {
     return _firebaseAuth.currentUser;
+  }
+
+  // Reset password
+  Future<void> resetPassword(String email) async {
+    try{
+
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } catch(e){
+      rethrow; 
+    }
   }
 
   // Method to send verification email

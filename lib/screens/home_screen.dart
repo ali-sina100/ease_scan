@@ -7,13 +7,14 @@ import '../features/auto_crop_scan/pages/image_preview_page.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   static navigate(context) {
     Navigator.pushAndRemoveUntil(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const HomeScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
 
   goToCameraViewPage() async {
-    CameraViewPage.navigate(context);
+    ImageProcessorPage.navigate(context);
   }
 
   @override
@@ -157,10 +158,8 @@ class _HomeState extends State<Home> {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
-                            onTap: () {
-                              ImagePreviewPage.navigate(
-                                  context, jpgFiles[index]);
-                            },
+                            // TODO
+                            onTap: () {},
                             child: ListTile(
                               tileColor: Colors.grey[300],
                               title: Text(jpgFiles[index].split('/').last),

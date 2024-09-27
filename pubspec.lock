@@ -632,13 +632,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
-  simple_edge_detection:
-    dependency: "direct main"
-    description:
-      path: "D:\\flutter development\\projects\\flutter-simple-edge-detection"
-      relative: false
-    source: path
-    version: "0.0.1"
   sky_engine:
     dependency: transitive
     description: flutter

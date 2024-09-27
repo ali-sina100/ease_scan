@@ -1,93 +1,16 @@
 package com.example.ease_scan
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
-import android.os.Bundle
 import android.util.Log
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
-import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
-import java.io.ByteArrayOutputStream
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class MainActivity: FlutterActivity() {
-    
-    private val CHANNEL = "com.sample.edgedetection/processor"
+const val TAG: String = "PaperProcessor"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (!OpenCVLoader.initDebug()) {
-            Log.e(TAG, "OpenCV initialization failed")
-        } else {
-            Log.i(TAG, "OpenCV initialization succeeded")
-        }
-    }
-
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "processImage") {
-                val byteArray = call.argument<ByteArray>("byteData")
-                val width = call.argument<Double>("width") 
-                val height = call.argument<Double>("height")
-                if (byteArray != null && width != null && height != null){
-                    val convertedWidth: Int = width.toInt()
-                    val convertedHeight: Int = height.toInt()
-                    val bitmap = convertYUV420ToBitmap(byteArray, convertedWidth, convertedHeight)
-                
-                bitmap?.let {
-                    val corners = processImage(it)
-                    if (corners != null) {
-                        // Send corners data back to Flutter if needed
-                        val modifiedString = corners.corners.toString().replace("{", "[")
-                                  .replace("}", "]")
-                        result.success(modifiedString)
-                    } else {
-                        result.success("null")
-                    }
-                } ?: run {
-                    result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
-                }
-            } else {
-                result.notImplemented()
-            }}
-        }
-    }
-
-    private fun convertYUV420ToBitmap(imageData: ByteArray, width: Int, height: Int): Bitmap? {
-        try {
-
-            val yuvImage = YuvImage(imageData, ImageFormat.NV21, width, height, null)
-            val out = ByteArrayOutputStream()
-            yuvImage.compressToJpeg(Rect(0, 0, width, height), 100, out)
-            val imageBytes = out.toByteArray()
-            return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return null
-        }
-    }
-
-    private fun processImage(bitmap: Bitmap): Corners? {
-        val mat = Mat()
-        Utils.bitmapToMat(bitmap, mat)
-        val corners = processPicture(mat)
-        mat.release()
-        return corners
-    }
-
-
-
-    
 fun processPicture(previewFrame: Mat): Corners? {
     val contours = findContours(previewFrame)
     return getCorners(contours, previewFrame.size())
@@ -223,7 +146,4 @@ private fun sortPoints(points: List<Point>): List<Point> {
     val p2 = points.maxByOrNull { point: Point -> point.x + point.y } ?: Point()
     val p3 = points.maxByOrNull { point: Point -> point.y - point.x } ?: Point()
     return listOf(p0, p1, p2, p3)
-}
-
-
 }

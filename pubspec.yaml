@@ -43,8 +43,6 @@ dependencies:
   firebase_auth: ^4.19.4
   google_sign_in: ^6.2.1
   cloud_firestore: ^4.17.2
-  simple_edge_detection:
-    path: D:/flutter development/projects/flutter-simple-edge-detection/
   camera: ^0.11.0+1
   image_picker: ^1.1.2
   lottie: ^3.1.2
@@ -72,7 +70,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/
+    - assets/animations/lotties/
+    - assets/images/authentication/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
