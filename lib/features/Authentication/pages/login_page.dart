@@ -74,7 +74,7 @@ class LoginPage extends StatelessWidget {
     return const Column(
       children: [
         Text(
-          "Welcome Back",
+          "Welcome to Ease Scan",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         Text("Enter your credential to login"),

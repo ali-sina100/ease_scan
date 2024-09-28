@@ -6,6 +6,7 @@ import 'features/features.dart';
 import 'firebase_options.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialized the Firebase app
@@ -18,10 +19,13 @@ void main() async {
       providers: [
         // Provider for authentication
         ChangeNotifierProvider(
+          // this line creates instance of provider
           create: (context) => AuthenticationProvider(),
         ),
       ],
       child: const App(),
+
     ),
+
   );
 }

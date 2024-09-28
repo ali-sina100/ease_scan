@@ -58,17 +58,29 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Colors.white,
               ),
-              child: Text('Welcome to the App!'),
+              child: Image.asset(
+                "assets/images/app_icon.png",
+                fit: BoxFit.fitHeight,
+              ),
             ),
+            // Settings button
             ListTile(
               title: const Text("Settings"),
               leading: const Icon(Icons.settings_rounded),
               onTap: () {
                 SettingsScreen.navigate(context);
+              },
+            ),
+            // Feedback
+            ListTile(
+              title: const Text("Feedback"),
+              leading: const Icon(Icons.settings_rounded),
+              onTap: () {
+                // TODO:
               },
             ),
           ],
