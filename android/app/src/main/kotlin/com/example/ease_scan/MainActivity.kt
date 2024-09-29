@@ -35,11 +35,15 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+
+             
             if (call.method == "processImage") {
+
                 val byteArray = call.argument<ByteArray>("byteData")
                 val width = call.argument<Double>("width") 
                 val height = call.argument<Double>("height")
-                if (byteArray != null && width != null && height != null){
+
+               if (byteArray != null && width != null && height != null){
                     val convertedWidth: Int = width.toInt()
                     val convertedHeight: Int = height.toInt()
                     val bitmap = convertYUV420ToBitmap(byteArray, convertedWidth, convertedHeight)
@@ -57,15 +61,60 @@ class MainActivity: FlutterActivity() {
                 } ?: run {
                     result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
                 }
-            } else {
+            }else {
                 result.notImplemented()
             }}
+            else if(call.method == "cropImage"){
+
+                val imageBytes = call.argument<ByteArray>("byteData")
+                val width = call.argument<Int>("width") 
+                val height = call.argument<Int>("height")
+                println(width)
+                println(height)
+                println(imageBytes)
+               if (imageBytes != null && width != null && height != null){
+
+                val bitmap: Bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
+                
+                bitmap?.let {
+                        val croppedImage = cropImageProcess(it)
+                        println("Success")
+                        println("-----------------------------------------------------")
+                        // this line sends back the cropped image to flutter
+                       result.success(matToByteArray(croppedImage!!))
+                } ?: run {
+                    result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
+                }
+            }else {
+                result.notImplemented()
+            }
+            } 
         }
     }
 
+
+    // Function to convert Mat to byte array
+
+    fun matToByteArray(mat: Mat): ByteArray? {
+        // Create a Bitmap from the Mat
+        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(mat, bitmap)
+
+        // Create a ByteArrayOutputStream to hold the compressed image
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        
+        // Compress the Bitmap to PNG or JPEG
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+
+        // Convert the output stream to a byte array
+        return byteArrayOutputStream.toByteArray()
+    }
+
+    
+    // Convert image to bitmap
     private fun convertYUV420ToBitmap(imageData: ByteArray, width: Int, height: Int): Bitmap? {
         try {
-
             val yuvImage = YuvImage(imageData, ImageFormat.NV21, width, height, null)
             val out = ByteArrayOutputStream()
             yuvImage.compressToJpeg(Rect(0, 0, width, height), 100, out)
@@ -76,7 +125,27 @@ class MainActivity: FlutterActivity() {
             return null
         }
     }
+    // cropImageProcess function
+    private fun cropImageProcess(bitmap:Bitmap):Mat? {
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        
+        val corners = processPicture(mat)
+        // Ensure corners is not null and contains non-null Points
+        val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
+           cropPicture(mat, corners.corners.filterNotNull())
+        } else {
+            null
+        }
 
+        mat.release()
+        return croppedImageMat
+
+    }
+ 
+
+   
+    // Function to start manage the process of finding corners
     private fun processImage(bitmap: Bitmap): Corners? {
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
@@ -85,14 +154,13 @@ class MainActivity: FlutterActivity() {
         return corners
     }
 
-
-
-    
 fun processPicture(previewFrame: Mat): Corners? {
     val contours = findContours(previewFrame)
     return getCorners(contours, previewFrame.size())
 }
 
+
+// Crop image and return as a Matrix
 fun cropPicture(picture: Mat, pts: List<Point>): Mat {
 
     pts.forEach { Log.i(TAG, "point: $it") }
@@ -106,7 +174,6 @@ fun cropPicture(picture: Mat, pts: List<Point>): Mat {
 
     val dw = max(widthA, widthB)
     val maxWidth = java.lang.Double.valueOf(dw).toInt()
-
 
     val heightA = sqrt((tr.x - br.x).pow(2.0) + (tr.y - br.y).pow(2.0))
     val heightB = sqrt((tl.x - bl.x).pow(2.0) + (tl.y - bl.y).pow(2.0))

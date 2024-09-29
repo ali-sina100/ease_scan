@@ -6,7 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../repositories/file_repository.dart';
-import 'image_preview_page.dart';
+import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
   const CameraViewPage({super.key});
@@ -75,8 +75,6 @@ class _CameraViewPageState extends State<CameraViewPage> {
     // this code will save the file into project directory/scanned_images
     final file = File(path);
     String newPath = await FileRepository().saveJPGFile(file);
-
-    //ImagePreviewPage.navigate(context, newPath);
   }
 
   @override

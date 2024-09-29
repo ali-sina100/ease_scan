@@ -3,7 +3,7 @@ import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../features/auto_crop_scan/pages/image_preview_page.dart';
+import '../features/auto_crop_scan/pages/edit_page.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
               ),
               child: Image.asset(
+                fit: BoxFit.scaleDown,
                 "assets/images/app_icon.png",
-                fit: BoxFit.fitHeight,
               ),
             ),
             // Settings button
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Feedback
             ListTile(
               title: const Text("Feedback"),
-              leading: const Icon(Icons.settings_rounded),
+              leading: const Icon(Icons.feedback_rounded),
               onTap: () {
                 // TODO:
               },

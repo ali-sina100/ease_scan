@@ -4,11 +4,11 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
-import 'package:ease_scan/utilities/file_utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
-import 'image_preview_page.dart';
+import 'edit_page.dart';
 
 class ImageProcessorPage extends StatefulWidget {
   static navigate(context) {
@@ -54,7 +54,6 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
   Future<void> initCamera() async {
     cameras = await availableCameras();
     _controller = CameraController(cameras[0], ResolutionPreset.max)
-      ..lockCaptureOrientation(DeviceOrientation.portraitUp)
       ..setFocusMode(FocusMode.auto);
     await _controller?.initialize();
     _controller?.startImageStream((CameraImage image) {
@@ -82,6 +81,7 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
     const platform = MethodChannel('com.sample.edgedetection/processor');
     var width = _controller!.value.previewSize!.width;
     var height = _controller!.value.previewSize!.height;
+
     try {
       String result =
           await platform.invokeMethod('processImage', <String, dynamic>{
@@ -107,15 +107,6 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
     }
   }
 
-  // go to ImagePreviewPage
-  goToImagePreviewPage(String path) async {
-    // this code will save the file into project directory/scanned_images
-    final file = File(path);
-    String newPath = await FileUtilities().saveJPGFile(file);
-
-    //  ImagePreviewPage.navigate(context, newPath);
-  }
-
   @override
   void dispose() {
     _controller?.dispose();
@@ -129,51 +120,9 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
     }
     return Scaffold(
         backgroundColor: Colors.black,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: Stack(
+          alignment: Alignment.center,
           children: [
-            // top controls bar
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Close Icon camera button
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close, color: Colors.white)),
-
-                  // Flash button
-                  IconButton(
-                    onPressed: () {
-                      // Toggle flash
-                      _controller!
-                          .setFlashMode(_controller!.value.flashMode ==
-                                  FlashMode.off
-                              ? FlashMode.always
-                              : _controller!.value.flashMode == FlashMode.auto
-                                  ? FlashMode.off
-                                  : FlashMode.auto)
-                          .then(
-                        (value) {
-                          setState(() {});
-                        },
-                      );
-                    },
-                    icon: Icon(
-                        _controller!.value.flashMode == FlashMode.always
-                            ? Icons.flash_on_rounded
-                            : _controller!.value.flashMode == FlashMode.auto
-                                ? Icons.flash_auto_rounded
-                                : Icons.flash_off_rounded,
-                        color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-
             // Camera preview
             Center(
               child: Stack(
@@ -198,58 +147,129 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
                 ],
               ),
             ),
-            // bottom controls bar
-
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // empty sized box to align the buttons
-                  const SizedBox(
-                    width: 40,
-                  ),
-                  // Capture Button
-                  Stack(
-                    alignment: Alignment.center,
+            // top controls bar
+            Positioned(
+              top: 0,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: const BoxDecoration(
-                          color: Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: Border.fromBorderSide(
-                            BorderSide(
-                              color: Colors.blue,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          final path = _controller!.takePicture();
+                      // Close Icon camera button
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.close, color: Colors.white)),
+
+                      // Flash button
+                      IconButton(
+                        onPressed: () {
+                          // Toggle flash
+                          _controller!
+                              .setFlashMode(
+                                  _controller!.value.flashMode == FlashMode.off
+                                      ? FlashMode.always
+                                      : _controller!.value.flashMode ==
+                                              FlashMode.auto
+                                          ? FlashMode.off
+                                          : FlashMode.auto)
+                              .then(
+                            (value) {
+                              setState(() {});
+                            },
+                          );
                         },
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 181, 181, 181),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                        icon: Icon(
+                            _controller!.value.flashMode == FlashMode.always
+                                ? Icons.flash_on_rounded
+                                : _controller!.value.flashMode == FlashMode.auto
+                                    ? Icons.flash_auto_rounded
+                                    : Icons.flash_off_rounded,
+                            color: Colors.white),
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            // bottom controls bar
+            Positioned(
+              bottom: 5,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // empty sized box to align the buttons
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      // Capture Button
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: const BoxDecoration(
+                              color: Colors.transparent,
+                              shape: BoxShape.circle,
+                              border: Border.fromBorderSide(
+                                BorderSide(
+                                  color: Colors.blue,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              // Take the picture and then go to edit page
+                              _controller!.takePicture().then(
+                                (value) async {
+                                  await value.readAsBytes().then(
+                                    (value) {
+                                      EditPage.navigate(context, value);
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 181, 181, 181),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
 
-                  // Gallery button
-                  IconButton(
-                    onPressed: () async {},
-                    icon: const Icon(Icons.photo_library_rounded,
-                        color: Colors.white),
+                      // Gallery button
+                      IconButton(
+                        onPressed: () async {
+                          final picker = ImagePicker();
+                          final pickedFile = await ImagePicker()
+                              .pickImage(source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            Uint8List byteData = await pickedFile.readAsBytes();
+                            EditPage.navigate(context, byteData);
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library_rounded,
+                            color: Colors.white),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             )
           ],

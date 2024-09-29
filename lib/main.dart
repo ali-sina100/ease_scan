@@ -19,7 +19,7 @@ void main() async {
       providers: [
         // Provider for authentication
         ChangeNotifierProvider(
-          // this line creates instance of provider
+          // this line creates instance of authentication provider
           create: (context) => AuthenticationProvider(),
         ),
       ],
