@@ -32,17 +32,32 @@ class PdfExportPage extends StatelessWidget {
     );
   }
 
-  final pdfDoc = pw.Document(); 
+  final pdfDoc = pw.Document();
 
   Future<void> _createPdf() async {
-    pdfDoc.addPage(pw.Page(build: (context) {
-      
-    },)); 
+    pdfDoc.addPage(
+      pw.Page(
+        build: (context) {
+          return pw.Center(child: pw.Image(pw.MemoryImage(image.getBytes())));
+        },
+      ),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(future: _createPdf(), builder: (context, snapshot) {
-     return 
-    },); 
-   }
+    return Center(
+      child: FutureBuilder(
+        future: _createPdf(),
+        builder: (context, snapshot) {
+          // check if pdf is being created
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Image.memory(image.data!.getBytes());
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+      ),
+    );
+  }
 }
