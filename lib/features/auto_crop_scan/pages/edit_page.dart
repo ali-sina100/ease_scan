@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:ffi';
-import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:image/image.dart' as img;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +24,7 @@ class EditPage extends StatefulWidget {
           imageBytes: imageBytes,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          var begin = const Offset(-1.0, 0.0);
+          var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
           var curve = Curves.easeInOutQuart;
           var tween =
@@ -45,7 +44,8 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
-  late Uint8List result = Uint8List(0);
+  //original image
+  late img.Image _image;
 
   Future<void> _sendToNative() async {
     const platform = MethodChannel('com.sample.edgedetection/processor');
@@ -54,15 +54,19 @@ class _EditPageState extends State<EditPage> {
     int width = image.width;
 
     try {
-      result = await platform.invokeMethod('cropImage', <String, dynamic>{
+      Uint8List result = await platform.invokeMethod(
+          'cropImage', <String, dynamic>{
         'byteData': widget.imageBytes,
         'height': height,
         'width': width
       });
-      if (result != "null") {
+      if (result != null) {
         print("Successfully cropped");
+        _image = img.decodeImage(result)!;
+        _image = img.copyRotate(_image, angle: 90);
       } else {
         print("Failed");
+        _image = image as img.Image;
       }
     } catch (e) {
       print(e.toString());
@@ -86,11 +90,7 @@ class _EditPageState extends State<EditPage> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.memory(
-                  fit: BoxFit.scaleDown,
-                  Uint8List.fromList(
-                      result.lengthInBytes == 0 ? widget.imageBytes : result),
-                ),
+                child: Image.memory(img.encodeJpg(_image), fit: BoxFit.contain),
               ),
             );
           } else {

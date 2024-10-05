@@ -79,9 +79,14 @@ class MainActivity: FlutterActivity() {
                 
                 bitmap?.let {
                         val croppedImage = cropImageProcess(it)
-                        println("Success")
-                        println("-----------------------------------------------------")
-                        // this line sends back the cropped image to flutter
+                        if (croppedImage != null) {
+                            println("croppedImage")
+                            println("---------------------")
+                            result.success(matToByteArray(croppedImage))
+
+                        } else {
+                            result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
+                        }
                        result.success(matToByteArray(croppedImage!!))
                 } ?: run {
                     result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
@@ -127,9 +132,9 @@ class MainActivity: FlutterActivity() {
     }
     // cropImageProcess function
     private fun cropImageProcess(bitmap:Bitmap):Mat? {
+
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
-        
         val corners = processPicture(mat)
         // Ensure corners is not null and contains non-null Points
         val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
@@ -137,14 +142,12 @@ class MainActivity: FlutterActivity() {
         } else {
             null
         }
-
         mat.release()
+        
         return croppedImageMat
 
     }
  
-
-   
     // Function to start manage the process of finding corners
     private fun processImage(bitmap: Bitmap): Corners? {
         val mat = Mat()
@@ -284,13 +287,11 @@ private fun getCorners(contours: List<MatOfPoint>, size: Size): Corners? {
 
     return null
 }
-private fun sortPoints(points: List<Point>): List<Point> {
-    val p0 = points.minByOrNull { point -> point.x + point.y } ?: Point()
-    val p1 = points.minByOrNull { point: Point -> point.y - point.x } ?: Point()
-    val p2 = points.maxByOrNull { point: Point -> point.x + point.y } ?: Point()
-    val p3 = points.maxByOrNull { point: Point -> point.y - point.x } ?: Point()
-    return listOf(p0, p1, p2, p3)
-}
-
-
+    private fun sortPoints(points: List<Point>): List<Point> {
+        val p0 = points.minByOrNull { point -> point.x + point.y } ?: Point()
+        val p1 = points.minByOrNull { point: Point -> point.y - point.x } ?: Point()
+        val p2 = points.maxByOrNull { point: Point -> point.x + point.y } ?: Point()
+        val p3 = points.maxByOrNull { point: Point -> point.y - point.x } ?: Point()
+        return listOf(p0, p1, p2, p3)
+    }
 }

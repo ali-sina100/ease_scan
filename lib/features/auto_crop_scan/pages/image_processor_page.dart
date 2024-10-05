@@ -68,6 +68,7 @@ class _ImageProcessorPageState extends State<ImageProcessorPage> {
   Future<void> processCameraImage(CameraImage image) async {
     final byteData = concatenatePlanes(image.planes);
     await _sendToNative(byteData);
+
     _isProcessing = false;
   }
 
