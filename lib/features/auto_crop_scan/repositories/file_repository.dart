@@ -1,6 +1,5 @@
 // this class will use to save file into project directory
 import 'dart:io';
-import 'dart:typed_data';
 
 class FileRepository {
   // save a file into /data/user/0/com.example.ease_scan/scanned_images

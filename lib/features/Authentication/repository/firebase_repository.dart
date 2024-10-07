@@ -54,7 +54,7 @@ class FirebaseRepository {
       } else {
         return null;
       }
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow;
     }
   }

@@ -6,7 +6,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../repositories/file_repository.dart';
-import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
   const CameraViewPage({super.key});

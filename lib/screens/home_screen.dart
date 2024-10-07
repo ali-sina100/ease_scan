@@ -2,8 +2,7 @@ import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../features/auto_crop_scan/pages/edit_page.dart';
+import '../utilities/share_app.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -39,7 +38,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
-
+  String appLink =
+      "https://play.google.com/store/apps/details?id=com.azarlive.android";
   goToCameraViewPage() async {
     ImageProcessorPage.navigate(context);
   }
@@ -58,13 +58,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.white,
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
-              child: Image.asset(
-                fit: BoxFit.scaleDown,
-                "assets/images/app_icon.png",
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/app_icon.png'),
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text('ScanEase'),
+                ],
               ),
             ),
             // Settings button
@@ -81,6 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.feedback_rounded),
               onTap: () {
                 // TODO:
+              },
+            ),
+            ListTile(
+              title: const Text("Invite Friends"),
+              leading: const Icon(Icons.person_add),
+              onTap: () {
+                ShareUtils().shareAppLink(appLink);
               },
             ),
           ],
