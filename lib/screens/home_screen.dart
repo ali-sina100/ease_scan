@@ -3,6 +3,7 @@ import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utilities/share_app.dart';
+import '../utilities/send_feedback.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -89,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text("Feedback"),
               leading: const Icon(Icons.feedback_rounded),
               onTap: () {
-                // TODO:
+                sendfeedback();
               },
             ),
             ListTile(
