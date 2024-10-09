@@ -2,6 +2,10 @@ import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:url_launcher/url_launcher_string.dart';
+import '../utilities/share_app.dart';
+import '../utilities/send_feedback.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,7 +41,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
-
+  String appLink =
+      "https://play.google.com/store/apps/details?id=com.azarlive.android";
   goToCameraViewPage() async {
     CameraViewPage.navigate(context);
   }
@@ -50,13 +55,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.white,
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
-              child: Image.asset(
-                fit: BoxFit.scaleDown,
-                "assets/images/app_icon.png",
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/app_icon.png'),
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text('ScanEase'),
+                ],
               ),
             ),
             // Settings button
@@ -72,7 +86,21 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text("Feedback"),
               leading: const Icon(Icons.feedback_rounded),
               onTap: () {
-                // TODO:
+                sendfeedback();
+              },
+            ),
+            ListTile(
+              title: const Text("Invite Friends"),
+              leading: const Icon(Icons.person_add),
+              onTap: () {
+                ShareUtils().shareAppLink(appLink);
+              },
+            ),
+            ListTile(
+              title: const Text("Privacy Policy"),
+              leading: const Icon(Icons.privacy_tip_outlined),
+              onTap: () {
+                launchUrlString('https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
               },
             ),
           ],
