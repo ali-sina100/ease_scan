@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:share_plus/share_plus.dart';
 
 class FileUtilities {
   // save a file into /data/user/0/com.example.ease_scan/scanned_images
@@ -30,5 +33,24 @@ class FileUtilities {
     } else {
       return [];
     }
+  }
+
+  // Share the pdf file
+  static Future<void> shareFile(String filePath) async {
+    await Share.shareXFiles([XFile(filePath)]);
+  }
+
+  // Save a single file to the device
+  static Future<String> savePDF(Uint8List pdfBytes) async {
+    final directory =
+        Directory('/data/user/0/com.example.ease_scan/scanned_pdfs');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    final file = File(
+        '${directory.path}/EaseScan_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(pdfBytes);
+    // Return the path of the saved file
+    return file.path;
   }
 }

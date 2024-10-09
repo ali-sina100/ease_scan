@@ -6,7 +6,6 @@ import 'features/features.dart';
 import 'firebase_options.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialized the Firebase app
@@ -24,7 +23,6 @@ void main() async {
         ),
       ],
       child: const App(),
-
     ),
   );
 }

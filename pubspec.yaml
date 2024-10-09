@@ -43,12 +43,14 @@ dependencies:
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.1
   cloud_firestore: ^5.4.3
-  camera: ^0.11.0+1
   image_picker: ^1.1.2
   lottie: ^3.1.2
   image: ^4.2.0
   flutter_native_splash: ^2.4.1
   pdf: ^3.11.1
+  google_fonts: ^6.2.1
+  camera: ^0.11.0+2
+  share_plus: ^10.0.3
 
 dev_dependencies:
   flutter_test:

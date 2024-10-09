@@ -1,6 +1,5 @@
 // this class will use to save file into project directory
 import 'dart:io';
-import 'dart:typed_data';
 
 class FileRepository {
   // save a file into /data/user/0/com.example.ease_scan/scanned_images
@@ -16,7 +15,7 @@ class FileRepository {
   }
 
   // get all jpg files into required directory
-  Future<List<String>> getAllJPGFiles() async {
+  static Future<List<String>> getAllJPGFiles() async {
     final directory =
         Directory('/data/user/0/com.example.ease_scan/scanned_images');
     if (await directory.exists()) {
