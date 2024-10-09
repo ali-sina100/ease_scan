@@ -90,7 +90,7 @@ class AuthenticationProvider with ChangeNotifier {
       notifyListeners();
       return user;
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 

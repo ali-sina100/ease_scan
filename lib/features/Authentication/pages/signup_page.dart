@@ -8,13 +8,13 @@ import '../provider/authetication_provider.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
-  SignupPage({super.key});
+  const SignupPage({super.key});
 
   static navigate(context) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SignupPage(),
+        pageBuilder: (context, animation, secondaryAnimation) => const SignupPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -44,7 +44,7 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationProvider _authenticationProvider =
+    AuthenticationProvider authenticationProvider =
         Provider.of<AuthenticationProvider>(context, listen: false);
     return Scaffold(
       body: SingleChildScrollView(
@@ -150,7 +150,7 @@ class _SignupPageState extends State<SignupPage> {
                           signupProcess = true;
                         });
                         // Call the register method
-                        _authenticationProvider
+                        authenticationProvider
                             .registerWithEmailPassword(_email, _password)
                             .then((value) {
                           setState(() {
@@ -271,7 +271,7 @@ class _SignupPageState extends State<SignupPage> {
                   // When the sign in with google button pressed
                   onPressed: () {
                     // If Sign in was a success then navigate to home screen
-                    _authenticationProvider.signInWithGoogle().then((value) {
+                    authenticationProvider.signInWithGoogle().then((value) {
                       if (value != null) {
                         HomeScreen.navigate(context);
                       }

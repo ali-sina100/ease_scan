@@ -1,16 +1,18 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:ui' as ui;
+import '../../document_exportation/pages/pdf_export_page.dart';
 import 'package:image/image.dart' as img;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'camera_view_page.dart';
+
 class EditPage extends StatefulWidget {
   Uint8List imageBytes;
   EditPage({
-    Key? key,
+    super.key,
     required this.imageBytes,
-  }) : super(key: key);
+  });
 
   // Static function to navigate
   static navigate(
@@ -49,7 +51,7 @@ class _EditPageState extends State<EditPage> {
 
   Future<void> _sendToNative() async {
     const platform = MethodChannel('com.sample.edgedetection/processor');
-    final ui.Image image = await decodeImageFromList(widget.imageBytes);
+    final img.Image image = img.decodeImage(widget.imageBytes)!;
     int height = image.height;
     int width = image.width;
 
@@ -60,16 +62,11 @@ class _EditPageState extends State<EditPage> {
         'height': height,
         'width': width
       });
-      if (result != null) {
-        print("Successfully cropped");
-        _image = img.decodeImage(result)!;
-        _image = img.copyRotate(_image, angle: 90);
-      } else {
-        print("Failed");
-        _image = image as img.Image;
-      }
+      _image = img.decodeImage(result)!;
+      _image = img.copyRotate(_image, angle: 90);
     } catch (e) {
-      print(e.toString());
+      // If the function couldn't be called, display error and set the image to the original image
+      _image = image;
     }
   }
 
@@ -80,25 +77,128 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      // using future builder to call the native code
-      body: FutureBuilder(
-        future: _sendToNative(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.memory(img.encodeJpg(_image), fit: BoxFit.contain),
+    int height = MediaQuery.of(context).size.height.toInt();
+
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          elevation: 0,
+          title: const Text('Edit Image and Export'),
+        ),
+        // using future builder to call the native code
+        body: Stack(
+          children: [
+            // Image
+            Positioned(
+              child: FutureBuilder(
+                future: _sendToNative(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return Center(
+                      child: SizedBox(
+                        height: height * 0.75,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Image.memory(img.encodeJpg(_image),
+                              fit: BoxFit.none),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: CircularProgressIndicator()),
+                    );
+                  }
+                },
               ),
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+            ),
+            // Bottom Button bar
+            Positioned(
+              bottom: 5,
+              left: 10,
+              right: 10,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: 70,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 0.2)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Go back to camera button
+                    IconButton(
+                        onPressed: () {
+                          CameraViewPage.navigate(context);
+                        },
+                        icon: const Icon(
+                          Icons.replay,
+                          color: Colors.white,
+                        )),
+                    // Fitlers
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.filter,
+                          color: Colors.white,
+                        )),
+                    // Crop
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.crop,
+                        color: Colors.white,
+                      ),
+                    ),
+                    // Export button
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        // Handle the selected export option here
+                        if (value == 'jpg') {
+                          // Export as JPG logic
+                        } else if (value == 'png') {
+                          // Export as PNG logic
+                        } else if (value == 'word') {
+                          // Export as Word logic
+                        } else if (value == 'pdf') {
+                          // in the following line we are navigating to the PDF export page with jpg image
+                          PdfExportPage.navigate(
+                              context, img.encodeJpg(_image));
+                        }
+                      },
+                      icon: const Icon(Icons.upload_rounded,
+                          color: Colors.white), // Icon for the export button
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          const PopupMenuItem(
+                            value: 'jpg',
+                            child: Text('Export as JPG'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'png',
+                            child: Text('Export as PNG'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'word',
+                            child: Text('Export as Word'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'pdf',
+                            child: Text('Export as PDF'),
+                          ),
+                        ];
+                      },
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

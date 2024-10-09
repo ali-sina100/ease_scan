@@ -2,6 +2,7 @@ import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:url_launcher/url_launcher_string.dart';
 import '../utilities/share_app.dart';
 import '../utilities/send_feedback.dart';
@@ -43,17 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   String appLink =
       "https://play.google.com/store/apps/details?id=com.azarlive.android";
   goToCameraViewPage() async {
-    ImageProcessorPage.navigate(context);
+    CameraViewPage.navigate(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationProvider _authenticationProvider =
-        Provider.of<AuthenticationProvider>(context, listen: false);
-
-    String? _email = _authenticationProvider.isUserSignedIn()
-        ? _authenticationProvider.getUser()!.email
-        : "Not SignedIn";
     return Scaffold(
       resizeToAvoidBottomInset: true,
       drawer: Drawer(
@@ -180,7 +175,7 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FutureBuilder<List<String>>(
-              future: FileRepository().getAllJPGFiles(),
+              future: FileRepository.getAllJPGFiles(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
@@ -225,7 +220,7 @@ class FileScreen extends StatelessWidget {
     return const Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children: [
         Text("Files"),
       ],
     ));
@@ -238,25 +233,31 @@ class MeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AuthenticationProvider _authenticationProvider =
+    AuthenticationProvider authenticationProvider =
         Provider.of<AuthenticationProvider>(context, listen: true);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // show profile picture
-          const CircleAvatar(
-            radius: 50,
-            child: Icon(Icons.person_rounded),
+          Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(90),
+                image: DecorationImage(
+                    image: NetworkImage(
+                        authenticationProvider.getUser()!.photoURL.toString()),
+                    fit: BoxFit.fill)),
           ),
           // show email
           Text(
-              "Email: ${_authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
+              "Email: ${authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
 
           // show signout button
           ElevatedButton(
             onPressed: () {
-              _authenticationProvider.signOut().then((value) {
+              authenticationProvider.signOut().then((value) {
                 LoginPage.navigate(context);
               });
             },

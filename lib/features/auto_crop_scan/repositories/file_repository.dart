@@ -15,7 +15,7 @@ class FileRepository {
   }
 
   // get all jpg files into required directory
-  Future<List<String>> getAllJPGFiles() async {
+  static Future<List<String>> getAllJPGFiles() async {
     final directory =
         Directory('/data/user/0/com.example.ease_scan/scanned_images');
     if (await directory.exists()) {

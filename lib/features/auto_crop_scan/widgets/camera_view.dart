@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 class CameraView extends StatelessWidget {
-  CameraView({required this.controller});
+  const CameraView({super.key, required this.controller});
 
   final CameraController controller;
 
@@ -12,7 +12,7 @@ class CameraView extends StatelessWidget {
   }
 
   Widget _getCameraPreview() {
-    if (controller == null || !controller.value.isInitialized) {
+    if (!controller.value.isInitialized) {
       return Container();
     }
 

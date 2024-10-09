@@ -1,5 +1,6 @@
 import 'package:ease_scan/features/features.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/material.dart';
@@ -71,13 +72,12 @@ class LoginPage extends StatelessWidget {
   }
 
   _header(context) {
-    return const Column(
+    return Column(
       children: [
-        Text(
-          "Welcome to Ease Scan",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-        ),
-        Text("Enter your credential to login"),
+        Text("Welcome to Ease Scan",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.oleoScript(fontSize: 30)),
+        const Text("Enter your credential to login"),
       ],
     );
   }
