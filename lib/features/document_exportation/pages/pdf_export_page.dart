@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -85,17 +83,67 @@ class _PdfExportPageState extends State<PdfExportPage> {
     return OverlayEntry(
       builder: (context) {
         return Material(
-          child: Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(child: Text("this is overlay")),
-            ),
-          ),
-        );
+            color: Colors.grey.withOpacity(0.5),
+            child: Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: Container(
+                    width: 300,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 29, 29, 29),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Text field for renaming the file
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              hintText: 'Enter new name',
+                            ),
+                            onSubmitted: (value) {
+                              // rename the file
+                              FileUtilities.renameFile(pdfPath, value);
+                              _removeOverlay();
+                            },
+                          ),
+                        ),
+                        const Spacer(
+                          flex: 5,
+                        ),
+                        // Button to cancel the renaming
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Cancel button
+                            ElevatedButton(
+                              onPressed: () {
+                                _removeOverlay();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _removeOverlay();
+                              },
+                              child: const Text('Save'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
     );
   }

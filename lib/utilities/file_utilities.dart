@@ -53,4 +53,7 @@ class FileUtilities {
     // Return the path of the saved file
     return file.path;
   }
+
+  // Function to raname file
+  static void renameFile(String pdfPath, String value) {}
 }
