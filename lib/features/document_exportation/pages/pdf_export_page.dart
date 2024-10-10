@@ -117,12 +117,10 @@ class _PdfExportPageState extends State<PdfExportPage> {
                             },
                           ),
                         ),
-                        const Spacer(
-                          flex: 5,
-                        ),
+
                         // Button to cancel the renaming
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             // Cancel button
                             ElevatedButton(

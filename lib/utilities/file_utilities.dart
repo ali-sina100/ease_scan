@@ -28,7 +28,6 @@ class FileUtilities {
               entity is File && entity.path.toLowerCase().endsWith('.jpg'))
           .map((entity) => entity.path)
           .toList();
-
       return jpgFiles;
     } else {
       return [];
@@ -53,7 +52,26 @@ class FileUtilities {
     // Return the path of the saved file
     return file.path;
   }
-
+  // Function to get all generated pdf files
+  static Future<List<String>> getAllPDFFiles() async {
+    final directory =
+        Directory('/data/user/0/com.example.ease_scan/scanned_pdfs');
+    if (await directory.exists()) {
+      List<FileSystemEntity> fileList =
+          directory.listSync(recursive: false, followLinks: false);
+      List<String> pdfFiles = fileList
+          .where((entity) =>
+              entity is File && entity.path.toLowerCase().endsWith('.pdf'))
+          .map((entity) => entity.path)
+          .toList();
+      return pdfFiles;
+    } else {
+      return [];
+    }
+  }
   // Function to raname file
-  static void renameFile(String pdfPath, String value) {}
+  static void renameFile(String pdfPath, String value) {
+    File file = File(pdfPath);
+    file.renameSync(pdfPath.replaceAll(RegExp(r'\d+'), value));
+  }
 }

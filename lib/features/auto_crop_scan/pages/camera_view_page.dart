@@ -252,11 +252,9 @@ class _CameraViewPageState extends State<CameraViewPage> {
                           ),
                         ],
                       ),
-
                       // Gallery button
                       IconButton(
                         onPressed: () async {
-                          final picker = ImagePicker();
                           final pickedFile = await ImagePicker()
                               .pickImage(source: ImageSource.gallery);
                           if (pickedFile != null) {
