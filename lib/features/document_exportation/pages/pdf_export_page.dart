@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../../utilities/file_utilities.dart';
 
-class PdfExportPage extends StatelessWidget {
+class PdfExportPage extends StatefulWidget {
   late Uint8List image_file;
   PdfExportPage({required this.image_file, super.key});
 
@@ -34,9 +35,16 @@ class PdfExportPage extends StatelessWidget {
     );
   }
 
+  @override
+  State<PdfExportPage> createState() => _PdfExportPageState();
+}
+
+class _PdfExportPageState extends State<PdfExportPage> {
   final pdfDoc = pw.Document();
+  OverlayEntry? overlayEntry;
   // path to saved Pdf file
   String pdfPath = '';
+
   // Function to create the pdf file
   Future<void> _createPdf() async {
     pdfDoc.addPage(
@@ -44,7 +52,7 @@ class PdfExportPage extends StatelessWidget {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return pw.Center(
-            child: pw.Image(pw.MemoryImage(image_file)),
+            child: pw.Image(pw.MemoryImage(widget.image_file)),
           );
         },
       ),
@@ -58,6 +66,38 @@ class PdfExportPage extends StatelessWidget {
     var savedFile = await pdfDoc.save();
     List<int> fileInts = List.from(savedFile);
     pdfPath = await FileUtilities.savePDF(Uint8List.fromList(fileInts));
+  }
+
+  // show overlay
+  void _showOverlay() {
+    overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(overlayEntry!);
+  }
+
+  // Remvoe overlay
+  void _removeOverlay() {
+    overlayEntry?.remove();
+    overlayEntry = null;
+  }
+
+  // create ovelay entry
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) {
+        return Material(
+          child: Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(child: Text("this is overlay")),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -84,10 +124,10 @@ class PdfExportPage extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Image.memory(image_file),
+                    child: Image.memory(widget.image_file),
                   );
                 } else {
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 }
               },
             ),
@@ -110,59 +150,19 @@ class PdfExportPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Rename button
-                    Column(
-                      children: [
-                        // Icon
-                        IconButton(
-                            onPressed: () {
-                              //TODO: Implement Rename pdf
-                            },
-                            icon: const Icon(Icons.edit_rounded)),
-                        // Label
-                        const Text('Rename'),
-                      ],
-                    ),
+                    bottomBarButton(() {
+                      _showOverlay();
+                    }, Icons.edit_rounded, 'Rename'),
+
                     // Share button
-                    Column(
-                      children: [
-                        // Icon
-                        IconButton(
-                            onPressed: () async {
-                              // call static method to share the pdf file
-                              await FileUtilities.shareFile(pdfPath);
-                            },
-                            icon: const Icon(Icons.share_rounded)),
-                        // Label
-                        const Text('Share'),
-                      ],
-                    ),
-                    // Save Button
-                    Column(
-                      children: [
-                        // Icon
-                        IconButton(
-                            onPressed: () {
-                              //TODO: Implement Save pdf
-                            },
-                            icon: const Icon(Icons.download_rounded)),
-                        // Label
-                        const Text('Save'),
-                      ],
-                    ),
+                    bottomBarButton(() {
+                      FileUtilities.shareFile(pdfPath);
+                    }, Icons.share_rounded, 'Share'),
+
                     // Go Home button
-                    Column(
-                      children: [
-                        // Icon
-                        IconButton(
-                          onPressed: () {
-                            //TODO: Implement Share pdf
-                          },
-                          icon: const Icon(Icons.home_rounded),
-                        ),
-                        // Label
-                        const Text('Home'),
-                      ],
-                    ),
+                    bottomBarButton(() {
+                      HomeScreen.navigate(context);
+                    }, Icons.home_rounded, 'Home'),
                   ],
                 ),
               ),
@@ -170,6 +170,27 @@ class PdfExportPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Column bottomBarButton(Function f, IconData icon, String label) {
+    return Column(
+      children: [
+        // Icon
+        IconButton(
+            onPressed: () {
+              f();
+            },
+            icon: Icon(
+              icon,
+              size: 22,
+            )),
+        // Label
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
     );
   }
 }
