@@ -1,12 +1,12 @@
 import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
+import 'package:ease_scan/utilities/file_utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:url_launcher/url_launcher_string.dart';
 import '../utilities/share_app.dart';
 import '../utilities/send_feedback.dart';
-import '../features/auto_crop_scan/repositories/file_repository.dart';
+import 'pdf_viewer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -100,7 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text("Privacy Policy"),
               leading: const Icon(Icons.privacy_tip_outlined),
               onTap: () {
-                launchUrlString('https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
+                launchUrlString(
+                    'https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
               },
             ),
           ],
@@ -175,26 +176,36 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FutureBuilder<List<String>>(
-              future: FileRepository.getAllJPGFiles(),
+              // Fetch All pdf files that has been created
+              future: FileUtilities.getAllPDFFiles(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return const Text("Error");
                 } else {
-                  List<String> jpgFiles = snapshot.data ?? [];
+                  List<String> pdfFiles = snapshot.data ?? [];
                   return Expanded(
                     child: ListView.builder(
-                      itemCount: jpgFiles.length,
+                      itemCount: pdfFiles.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
-                            // TODO
-                            onTap: () {},
-                            child: ListTile(
-                              tileColor: Colors.grey[300],
-                              title: Text(jpgFiles[index].split('/').last),
+                            onTap: () {
+                              // Navigate to pdf viewer
+                              PdfViewer.navigate(context, pdfFiles[index]);
+                            },
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  title: Text(pdfFiles[index].split('/').last),
+                                ),
+                                const Divider(
+                                  height: 0.4,
+                                  thickness: 1,
+                                )
+                              ],
                             ),
                           ),
                         );
