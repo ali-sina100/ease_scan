@@ -57,7 +57,17 @@ class _PdfExportPageState extends State<PdfExportPage> {
       ),
     );
     // put the saved pdf file path into the pdfPath variable
-    await savePDF();
+    await savePDF().then(
+      (value) {
+        // Show toast message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 1),
+            content: Text('PDF file saved successfully'),
+          ),
+        );
+      },
+    );
   }
 
   // function to save the pdf file
@@ -149,73 +159,106 @@ class _PdfExportPageState extends State<PdfExportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: AppBar(
-        title: const Text('PDF Export and Share'),
-      ),
-      body: Stack(
-        children: [
-          // Pdf preview
-          Positioned(
-            // Align the pdf preview to the center
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-
-            child: FutureBuilder(
-              future: _createPdf(),
-              builder: (context, snapshot) {
-                // check if pdf is being created
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Image.memory(widget.image_file),
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-          ),
-          // Button bar controll buttons
-          Positioned(
-            bottom: 10,
-            left: 10,
-            right: 10,
-            child: Container(
-              width: double.infinity,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                border: Border.all(color: Colors.white, width: 0.2),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Rename button
-                    bottomBarButton(() {
-                      _showOverlay();
-                    }, Icons.edit_rounded, 'Rename'),
-
-                    // Share button
-                    bottomBarButton(() {
-                      FileUtilities.shareFile(pdfPath);
-                    }, Icons.share_rounded, 'Share'),
-
-                    // Go Home button
-                    bottomBarButton(() {
-                      HomeScreen.navigate(context);
-                    }, Icons.home_rounded, 'Home'),
+    return WillPopScope(
+      onWillPop: () async {
+        return await showDialog<bool>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Exit'),
+                  content: const Text('Discard the current document?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: const Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                        HomeScreen.navigate(context);
+                      },
+                      child: const Text('Yes'),
+                    ),
                   ],
+                );
+              },
+            ) ??
+            false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black87,
+        appBar: AppBar(
+          // show name of the document in the app bar
+          title: Text(
+            pdfPath.split('/').last,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+        body: Stack(
+          children: [
+            // Pdf preview
+            Positioned(
+              // Align the pdf preview to the center
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+
+              child: FutureBuilder(
+                future: _createPdf(),
+                builder: (context, snapshot) {
+                  // check if pdf is being created
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Image.memory(widget.image_file),
+                    );
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ),
+            // Button bar controll buttons
+            Positioned(
+              bottom: 10,
+              left: 10,
+              right: 10,
+              child: Container(
+                width: double.infinity,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  border: Border.all(color: Colors.white, width: 0.2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Rename button
+                      bottomBarButton(() {
+                        _showOverlay();
+                      }, Icons.edit_rounded, 'Rename'),
+
+                      // Share button
+                      bottomBarButton(() {
+                        FileUtilities.shareFile(pdfPath);
+                      }, Icons.share_rounded, 'Share'),
+
+                      // Go Home button
+                      bottomBarButton(() {
+                        HomeScreen.navigate(context);
+                      }, Icons.home_rounded, 'Home'),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -225,13 +268,14 @@ class _PdfExportPageState extends State<PdfExportPage> {
       children: [
         // Icon
         IconButton(
-            onPressed: () {
-              f();
-            },
-            icon: Icon(
-              icon,
-              size: 22,
-            )),
+          onPressed: () {
+            f();
+          },
+          icon: Icon(
+            icon,
+            size: 22,
+          ),
+        ),
         // Label
         Text(
           label,
