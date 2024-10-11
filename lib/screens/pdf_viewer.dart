@@ -33,7 +33,11 @@ class PdfViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PDF Viewer'),
+        // show name of the pdf file on the app bar
+        title: Text(
+          pdfPath.split('/').last,
+          style: const TextStyle(fontSize: 14),
+        ),
       ),
       body: PDFView(
         filePath: pdfPath,
