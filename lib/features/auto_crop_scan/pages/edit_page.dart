@@ -46,6 +46,7 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
+  
   //original image
   late img.Image _image;
 
@@ -102,7 +103,7 @@ class _EditPageState extends State<EditPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Image.memory(img.encodeJpg(_image),
-                              fit: BoxFit.none),
+                              fit: BoxFit.contain),
                         ),
                       ),
                     );
