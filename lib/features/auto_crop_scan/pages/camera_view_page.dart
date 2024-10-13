@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import '../repositories/file_repository.dart';
 
 import 'edit_page.dart';
 

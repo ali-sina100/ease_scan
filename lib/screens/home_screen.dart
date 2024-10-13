@@ -2,7 +2,6 @@ import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:url_launcher/url_launcher_string.dart';
 import '../utilities/share_app.dart';
 import '../utilities/send_feedback.dart';
