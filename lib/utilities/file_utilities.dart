@@ -74,6 +74,26 @@ class FileUtilities {
     }
   }
 
+  // Function to search for a files
+  static Future<List<String>> searchFiles(String query) async {
+    final directory =
+        Directory('/data/user/0/com.example.ease_scan/scanned_pdfs');
+    if (await directory.exists()) {
+      List<FileSystemEntity> fileList =
+          directory.listSync(recursive: false, followLinks: false);
+      List<String> pdfFiles = fileList
+          .where((entity) =>
+              entity is File &&
+              entity.path.toLowerCase().endsWith('.pdf') &&
+              entity.path.toLowerCase().contains(query.toLowerCase()))
+          .map((entity) => entity.path)
+          .toList();
+      return pdfFiles;
+    } else {
+      return [];
+    }
+  }
+
   // Function to rename file
   static Future<void> renameFile(String pdfPath, String newName) async {
     // Extract the directory from the original file path

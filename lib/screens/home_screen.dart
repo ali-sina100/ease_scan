@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../utilities/share_app.dart';
 import '../utilities/send_feedback.dart';
 import 'pdf_viewer.dart';
+import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 0;
   String appLink =
       "https://play.google.com/store/apps/details?id=com.azarlive.android";
+  List<String> pdfFiles = [];
   goToCameraViewPage() async {
     CameraViewPage.navigate(context);
   }
@@ -111,7 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Home"),
         actions: [
           IconButton(
-              onPressed: () => {}, icon: const Icon(Icons.search_rounded)),
+              onPressed: () => {
+                    SearchScreen.navigate(context, pdfFiles),
+                  },
+              icon: const Icon(Icons.search_rounded)),
           const SizedBox(
             width: 10,
           )
@@ -120,10 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
       // IndexedStack is used to show the current tab screen
       body: IndexedStack(
         index: currentTabIndex,
-        children: const [
-          Home(),
-          FileScreen(),
-          MeScreen(),
+        children: [
+          buildHomeTab(),
+          const FileScreen(),
+          const MeScreen(),
         ],
       ),
 
@@ -154,19 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-// Screen to be shown in the home tab
-class Home extends StatefulWidget {
-  const Home({super.key});
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
+  Widget buildHomeTab() {
     return Center(
       child: RefreshIndicator(
         onRefresh: () async {
@@ -184,7 +178,7 @@ class _HomeState extends State<Home> {
                 } else if (snapshot.hasError) {
                   return const Text("Error");
                 } else {
-                  List<String> pdfFiles = snapshot.data ?? [];
+                  pdfFiles = snapshot.data ?? [];
                   return pdfFiles.isEmpty
                       ? const Text("No PDF Files")
                       : Expanded(
