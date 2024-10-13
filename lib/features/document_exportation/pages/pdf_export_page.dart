@@ -40,8 +40,6 @@ class PdfExportPage extends StatefulWidget {
 
 class _PdfExportPageState extends State<PdfExportPage> {
   final pdfDoc = pw.Document();
-  // Overly entry to show overlay for renaming the file
-  OverlayEntry? overlayEntry;
   // path to saved Pdf file
   String pdfPath = '';
 
@@ -50,9 +48,13 @@ class _PdfExportPageState extends State<PdfExportPage> {
     pdfDoc.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(0),
         build: (context) {
           return pw.Center(
-            child: pw.Image(pw.MemoryImage(widget.image_file)),
+            child: pw.Image(
+              pw.MemoryImage(widget.image_file),
+              fit: pw.BoxFit.contain, // Ensure the image fits within the page
+            ),
           );
         },
       ),
@@ -78,82 +80,54 @@ class _PdfExportPageState extends State<PdfExportPage> {
     pdfPath = await FileUtilities.savePDF(Uint8List.fromList(fileInts));
   }
 
-  // show overlay
-  void _showOverlay() {
-    overlayEntry = _createOverlayEntry();
-    Overlay.of(context).insert(overlayEntry!);
-  }
-
-  // Remvoe overlay
-  void _removeOverlay() {
-    overlayEntry?.remove();
-    overlayEntry = null;
-  }
-
-  // create ovelay entry
-  OverlayEntry _createOverlayEntry() {
-    return OverlayEntry(
+  // show dialog
+  void _showRenameDialog() {
+    String newName = '';
+    showDialog(
+      context: context,
       builder: (context) {
-        return Material(
-            color: Colors.grey.withOpacity(0.5),
-            child: Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(
-                  child: Container(
-                    width: 300,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 29, 29, 29),
-                      borderRadius: BorderRadius.circular(10),
+        return AlertDialog(
+          title: const Text('Rename Document'),
+          content: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Enter new name',
+            ),
+            onChanged: (value) {
+              newName = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (newName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(seconds: 1),
+                      content: Text('Please enter a name'),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Text field for renaming the file
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              hintText: 'Enter new name',
-                            ),
-                            onSubmitted: (value) {
-                              // rename the file
-                              FileUtilities.renameFile(pdfPath, value);
-                              _removeOverlay();
-                            },
-                          ),
-                        ),
-
-                        // Button to cancel the renaming
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            // Cancel button
-                            ElevatedButton(
-                              onPressed: () {
-                                _removeOverlay();
-                              },
-                              child: const Text('Cancel'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                _removeOverlay();
-                              },
-                              child: const Text('Save'),
-                            ),
-                          ],
-                        ),
-                      ],
+                  );
+                  return;
+                } else {
+                  await FileUtilities.renameFile(pdfPath, newName);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(seconds: 1),
+                      content: Text('File renamed successfully'),
                     ),
-                  ),
-                ),
-              ),
-            ));
+                  );
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
       },
     );
   }
@@ -241,7 +215,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                     children: [
                       // Rename button
                       bottomBarButton(() {
-                        _showOverlay();
+                        _showRenameDialog();
                       }, Icons.edit_rounded, 'Rename'),
 
                       // Share button

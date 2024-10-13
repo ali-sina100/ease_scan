@@ -40,7 +40,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int currentTabIndex = 2;
+  int currentTabIndex = 0;
   String appLink =
       "https://play.google.com/store/apps/details?id=com.azarlive.android";
   goToCameraViewPage() async {
@@ -185,33 +185,37 @@ class _HomeState extends State<Home> {
                   return const Text("Error");
                 } else {
                   List<String> pdfFiles = snapshot.data ?? [];
-                  return Expanded(
-                    child: ListView.builder(
-                      itemCount: pdfFiles.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              // Navigate to pdf viewer
-                              PdfViewer.navigate(context, pdfFiles[index]);
-                            },
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  title: Text(pdfFiles[index].split('/').last),
+                  return pdfFiles.isEmpty
+                      ? const Text("No PDF Files")
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: pdfFiles.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Navigate to pdf viewer
+                                    PdfViewer.navigate(
+                                        context, pdfFiles[index]);
+                                  },
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        title: Text(
+                                            pdfFiles[index].split('/').last),
+                                      ),
+                                      const Divider(
+                                        height: 0.4,
+                                        thickness: 1,
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                const Divider(
-                                  height: 0.4,
-                                  thickness: 1,
-                                )
-                              ],
-                            ),
+                              );
+                            },
                           ),
                         );
-                      },
-                    ),
-                  );
                 }
               },
             ),
