@@ -1,4 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
+
+import '../../document_enhancement/filters_page.dart';
 import '../../document_exportation/pages/pdf_export_page.dart';
 import 'package:image/image.dart' as img;
 
@@ -46,7 +49,6 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
-  
   //original image
   late img.Image _image;
 
@@ -64,7 +66,6 @@ class _EditPageState extends State<EditPage> {
         'width': width
       });
       _image = img.decodeImage(result)!;
-      _image = img.copyRotate(_image, angle: 90);
     } catch (e) {
       // If the function couldn't be called, display error and set the image to the original image
       _image = image;
@@ -142,7 +143,10 @@ class _EditPageState extends State<EditPage> {
                         )),
                     // Fitlers
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Navigate to the filters page, create a path of _image and send it to FiltersPagec
+                          FiltersPage.navigate(context, _image);
+                        },
                         icon: const Icon(
                           Icons.filter,
                           color: Colors.white,

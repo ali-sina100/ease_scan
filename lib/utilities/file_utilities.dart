@@ -52,7 +52,8 @@ class FileUtilities {
     // Return the path of the saved file
     return file.path;
   }
-  // Function to get all generated pdf files
+
+  // Function to get all generated pdf files and sort based on the date
   static Future<List<String>> getAllPDFFiles() async {
     final directory =
         Directory('/data/user/0/com.example.ease_scan/scanned_pdfs');
@@ -63,15 +64,40 @@ class FileUtilities {
           .where((entity) =>
               entity is File && entity.path.toLowerCase().endsWith('.pdf'))
           .map((entity) => entity.path)
-          .toList();
+          .toList()
+        // sort list in descending order
+        ..sort((a, b) =>
+            File(b).lastModifiedSync().compareTo(File(a).lastModifiedSync()));
       return pdfFiles;
     } else {
       return [];
     }
   }
-  // Function to raname file
-  static void renameFile(String pdfPath, String value) {
-    File file = File(pdfPath);
-    file.renameSync(pdfPath.replaceAll(RegExp(r'\d+'), value));
+
+  // Function to rename file
+  static Future<void> renameFile(String pdfPath, String newName) async {
+    // Extract the directory from the original file path
+    final directory = File(pdfPath).parent.path;
+    // Ensure the new name includes the .pdf extension
+    final newFileName = newName.endsWith('.pdf') ? newName : '$newName.pdf';
+    // Construct the new file path
+    String newFilePath = '$directory/$newFileName';
+
+    // Check if the new file name already exists
+    if (await File(newFilePath).exists()) {
+      // Append a timestamp to the new file name to make it unique
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final uniqueFileName = newName.endsWith('.pdf')
+          ? '${newName.replaceAll('.pdf', '')}_$timestamp.pdf'
+          : '${newName}_$timestamp.pdf';
+      newFilePath = '$directory/$uniqueFileName';
+    }
+    // Rename the file
+    await File(pdfPath).rename(newFilePath);
+  }
+
+  // Function to delete a a single file
+  static Future<void> deleteFile(String filePath) async {
+    await File(filePath).delete();
   }
 }
