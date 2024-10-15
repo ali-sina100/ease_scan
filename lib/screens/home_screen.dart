@@ -6,7 +6,8 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../utilities/share_app.dart';
 import '../utilities/send_feedback.dart';
 import '../features/auto_crop_scan/repositories/file_repository.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 2;
   String appLink =
       "https://play.google.com/store/apps/details?id=com.azarlive.android";
+      User? user = FirebaseAuth.instance.currentUser;
   goToCameraViewPage() async {
     CameraViewPage.navigate(context);
   }
@@ -51,27 +53,27 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       drawer: Drawer(
+        
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/app_icon.png'),
-                    radius: 40,
-                    backgroundColor: Colors.white,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text('ScanEase'),
-                ],
-              ),
-            ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                  UserAccountsDrawerHeader(
+                    accountName: Text(user?.displayName ?? "guest"),
+                    accountEmail: Text(""),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundImage: user?.photoURL !=null
+                          ? NetworkImage(user!.photoURL!) 
+                    :const  AssetImage('assets/images/app_icon.png') // Fallback image
+                        as ImageProvider,
+                            ),
+                          ),
+                  ],
+                            ),
+             
             // Settings button
             ListTile(
               title: const Text("Settings"),
@@ -135,11 +137,34 @@ class _HomeScreenState extends State<HomeScreen> {
       // Bottom navigation bar to switch between tabs
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
-        onTap: (index) {
+        onTap: (index) => {
           setState(() {
             currentTabIndex = index;
-          });
+          })
         },
+        // onTap: (index) {
+        //   if (index == 2) {
+        //     // Navigate to MeScreen when "Me" tab is tapped
+        //     Navigator.push(
+        //       context,
+        //         MaterialPageRoute<ProfileScreen>(
+        //           builder: (context) => ProfileScreen(
+                  
+        //             actions: [
+        //               SignedOutAction((context) {
+        //                 Navigator.of(context).pop();
+        //               })
+        //             ],
+        //           ),
+        //         ),
+        //     );
+        //   }else {
+        //     setState(() {
+        //     currentTabIndex = index;
+        //   });
+        //   }
+          
+        // },
         // Navigation bar items (Home, Files, Me)
         items: const [
           BottomNavigationBarItem(
@@ -226,7 +251,7 @@ class FileScreen extends StatelessWidget {
   }
 }
 
-//screen to be shown in the me tab
+// screen to be shown in the me tab
 class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
 
@@ -252,7 +277,6 @@ class MeScreen extends StatelessWidget {
           // show email
           Text(
               "Email: ${authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
-
           // show signout button
           ElevatedButton(
             onPressed: () {

@@ -52,6 +52,7 @@ dependencies:
   camera: ^0.11.0+2
   share_plus: ^10.0.3
   url_launcher: ^6.3.1
+  firebase_ui_auth: ^1.16.0
 
 dev_dependencies:
   flutter_test:
