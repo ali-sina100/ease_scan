@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
-import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,14 +9,12 @@ import 'package:image_picker/image_picker.dart';
 import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
-  const CameraViewPage({super.key});
-
   static navigate(context) {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const CameraViewPage(),
+            CameraViewPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -75,9 +72,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
 
   Uint8List concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
-    for (var plane in planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
+    planes.forEach((Plane plane) => allBytes.putUint8List(plane.bytes));
     return allBytes.done().buffer.asUint8List();
   }
 
@@ -122,171 +117,167 @@ class _CameraViewPageState extends State<CameraViewPage> {
     if (_controller == null || !_controller!.value.isInitialized) {
       return Container();
     }
-    return WillPopScope(
-      onWillPop: () => HomeScreen.navigate(context),
-      child: Scaffold(
-          backgroundColor: Colors.black,
-          body: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Camera preview
-              Center(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CameraPreview(
-                      _controller!,
-                      key: imageWidgetKey,
-                    ),
-                    if (corners != null)
-                      Transform.flip(
-                        flipY: true,
-                        child: Transform.rotate(
-                          angle: pi,
-                          child: EdgePainter(
-                            imageWidgetKey: imageWidgetKey,
-                            corners: corners,
-                            controller: _controller,
-                          ),
+    return Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Camera preview
+            Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CameraPreview(
+                    _controller!,
+                    key: imageWidgetKey,
+                  ),
+                  if (corners != null)
+                    Transform.flip(
+                      flipY: true,
+                      child: Transform.rotate(
+                        angle: pi,
+                        child: EdgePainter(
+                          imageWidgetKey: imageWidgetKey,
+                          corners: corners,
+                          controller: _controller,
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-              // top controls bar
-              Positioned(
-                top: 0,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Close Icon camera button
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(Icons.close, color: Colors.white)),
-
-                        // Flash button
-                        IconButton(
+            ),
+            // top controls bar
+            Positioned(
+              top: 0,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Close Icon camera button
+                      IconButton(
                           onPressed: () {
-                            // Toggle flash
-                            _controller!
-                                .setFlashMode(_controller!.value.flashMode ==
-                                        FlashMode.off
-                                    ? FlashMode.always
-                                    : _controller!.value.flashMode ==
-                                            FlashMode.auto
-                                        ? FlashMode.off
-                                        : FlashMode.auto)
-                                .then(
-                              (value) {
-                                setState(() {});
-                              },
-                            );
+                            Navigator.pop(context);
                           },
-                          icon: Icon(
-                              _controller!.value.flashMode == FlashMode.always
-                                  ? Icons.flash_on_rounded
-                                  : _controller!.value.flashMode ==
-                                          FlashMode.auto
-                                      ? Icons.flash_auto_rounded
-                                      : Icons.flash_off_rounded,
-                              color: Colors.white),
-                        ),
-                      ],
-                    ),
+                          icon: const Icon(Icons.close, color: Colors.white)),
+
+                      // Flash button
+                      IconButton(
+                        onPressed: () {
+                          // Toggle flash
+                          _controller!
+                              .setFlashMode(
+                                  _controller!.value.flashMode == FlashMode.off
+                                      ? FlashMode.always
+                                      : _controller!.value.flashMode ==
+                                              FlashMode.auto
+                                          ? FlashMode.off
+                                          : FlashMode.auto)
+                              .then(
+                            (value) {
+                              setState(() {});
+                            },
+                          );
+                        },
+                        icon: Icon(
+                            _controller!.value.flashMode == FlashMode.always
+                                ? Icons.flash_on_rounded
+                                : _controller!.value.flashMode == FlashMode.auto
+                                    ? Icons.flash_auto_rounded
+                                    : Icons.flash_off_rounded,
+                            color: Colors.white),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // bottom controls bar
-              Positioned(
-                bottom: 5,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // empty sized box to align the buttons
-                        const SizedBox(
-                          width: 40,
-                        ),
-                        // Capture Button
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 70,
-                              height: 70,
+            ),
+            // bottom controls bar
+            Positioned(
+              bottom: 5,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // empty sized box to align the buttons
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      // Capture Button
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 70,
+                            height: 70,
+                            decoration: const BoxDecoration(
+                              color: Colors.transparent,
+                              shape: BoxShape.circle,
+                              border: Border.fromBorderSide(
+                                BorderSide(
+                                  color: Colors.blue,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              // Take the picture and then go to edit page
+                              _controller!.takePicture().then(
+                                (value) async {
+                                  await value.readAsBytes().then(
+                                    (value) {
+                                      EditPage.navigate(context, value);
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: 60,
+                              height: 60,
                               decoration: const BoxDecoration(
-                                color: Colors.transparent,
+                                color: Color.fromARGB(255, 181, 181, 181),
                                 shape: BoxShape.circle,
-                                border: Border.fromBorderSide(
-                                  BorderSide(
-                                    color: Colors.blue,
-                                    width: 2,
-                                  ),
-                                ),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () async {
-                                // Take the picture and then go to edit page
-                                _controller!.takePicture().then(
-                                  (value) async {
-                                    await value.readAsBytes().then(
-                                      (value) {
-                                        EditPage.navigate(context, value);
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                              child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 181, 181, 181),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
 
-                        // Gallery button
-                        IconButton(
-                          onPressed: () async {
-                            final pickedFile = await ImagePicker()
-                                .pickImage(source: ImageSource.gallery);
-                            if (pickedFile != null) {
-                              Uint8List byteData =
-                                  await pickedFile.readAsBytes();
-                              EditPage.navigate(context, byteData);
-                            }
-                          },
-                          icon: const Icon(Icons.photo_library_rounded,
-                              color: Colors.white),
-                        ),
-                      ],
-                    ),
+                      // Gallery button
+                      IconButton(
+                        onPressed: () async {
+                          final picker = ImagePicker();
+                          final pickedFile = await ImagePicker()
+                              .pickImage(source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            Uint8List byteData = await pickedFile.readAsBytes();
+                            EditPage.navigate(context, byteData);
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library_rounded,
+                            color: Colors.white),
+                      ),
+                    ],
                   ),
                 ),
-              )
-            ],
-          )),
-    );
+              ),
+            )
+          ],
+        ));
   }
 }
 
 class EdgePainter extends StatelessWidget {
-  const EdgePainter({
+  EdgePainter({
     super.key,
     required this.imageWidgetKey,
     required this.corners,
