@@ -43,6 +43,7 @@ class MainActivity: FlutterActivity() {
                 val width = call.argument<Double>("width") 
                 val height = call.argument<Double>("height")
 
+
                if (byteArray != null && width != null && height != null){
                     val convertedWidth: Int = width.toInt()
                     val convertedHeight: Int = height.toInt()
@@ -75,6 +76,7 @@ class MainActivity: FlutterActivity() {
                if (imageBytes != null && width != null && height != null){
 
                 val bitmap: Bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
 
                 
                 bitmap?.let {
@@ -131,26 +133,85 @@ class MainActivity: FlutterActivity() {
         }
     }
     // cropImageProcess function
-    private fun cropImageProcess(bitmap:Bitmap):Mat? {
+    // private fun cropImageProcess(bitmap: Bitmap): Mat? {
+    //     val mat = Mat()
+    //     Utils.bitmapToMat(bitmap, mat)
+    //     val corners = processPicture(mat)
+    //     // Ensure corners is not null and contains non-null Points
+    //     val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
+    //         cropPicture(mat, corners.corners.filterNotNull())
+    //     } else {
+    //         null
+    //     }
+    //     // Rotate the cropped image 90 degres
+    //     Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
 
-        val mat = Mat()
-        Utils.bitmapToMat(bitmap, mat)
-        val corners = processPicture(mat)
-        // Ensure corners is not null and contains non-null Points
-        val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
-           cropPicture(mat, corners.corners.filterNotNull())
-        } else {
-            null
-        }
-        mat.release()
-        
-        return croppedImageMat
+    //    //  Enhance the cropped image
+    //      Imgproc.cvtColor(croppedImageMat, croppedImageMat, Imgproc.COLOR_RGBA2GRAY)
+    //         Imgproc.adaptiveThreshold(
+    //             croppedImageMat,
+    //             croppedImageMat,
+    //             255.0,
+    //             Imgproc.ADAPTIVE_THRESH_MEAN_C,
+    //             Imgproc.THRESH_BINARY,
+    //             15,
+    //             15.0
+    //         )
+    //     mat.release()
+    //     return croppedImageMat
+    // }
+ private fun cropImageProcess(bitmap: Bitmap): Mat? {
+    val mat = Mat()
+    Utils.bitmapToMat(bitmap, mat)
 
+    val corners = processPicture(mat)
+    
+    // Ensure corners is not null and contains non-null Points
+    val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
+        cropPicture(mat, corners.corners.filterNotNull())
+    } else {
+        null
     }
- 
+
+    Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
+    // if (croppedImageMat != null) {
+    //     // Rotate the cropped image 90 degrees
+    //     Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
+
+    //     // Apply color enhancement (no grayscale conversion)
+    //     // 1. Adjust brightness and contrast (hard-coded values)
+    //     croppedImageMat.convertTo(croppedImageMat, -1, 1.2, 30.0)  // alpha=1.2 (contrast), beta=30 (brightness)
+
+    //     // 2. Apply histogram equalization to enhance contrast (only to luminance)
+    //     val ycrcb = Mat()
+    //     Imgproc.cvtColor(croppedImageMat, ycrcb, Imgproc.COLOR_RGB2YCrCb)
+
+    //     val channels = ArrayList<Mat>()
+    //     Core.split(ycrcb, channels)
+
+    //     // Apply histogram equalization to the Y channel (luminance channel)
+    //     Imgproc.equalizeHist(channels[0], channels[0])
+
+    //     // Merge the channels back
+    //     Core.merge(channels, ycrcb)
+
+    //     // Convert back to RGB
+    //     Imgproc.cvtColor(ycrcb, croppedImageMat, Imgproc.COLOR_YCrCb2RGB)
+
+    //     // Release intermediate Mat objects to free memory
+    //     ycrcb.release()
+    //     for (channel in channels) {
+    //         channel.release()
+    //     }
+    // }
+    mat.release()
+    return croppedImageMat
+}
+
     // Function to start manage the process of finding corners
     private fun processImage(bitmap: Bitmap): Corners? {
         val mat = Mat()
+        
         Utils.bitmapToMat(bitmap, mat)
         val corners = processPicture(mat)
         mat.release()

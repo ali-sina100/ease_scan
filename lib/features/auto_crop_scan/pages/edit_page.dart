@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
+import '../../document_enhancement/filters_page.dart';
 import '../../document_exportation/pages/pdf_export_page.dart';
 import 'package:image/image.dart' as img;
 
@@ -48,8 +50,11 @@ class EditPage extends StatefulWidget {
 class _EditPageState extends State<EditPage> {
   //original image
   late img.Image _image;
+  bool _isImageCropped = false;
 
   Future<void> _sendToNative() async {
+    if (_isImageCropped) return;
+    _isImageCropped = true;
     const platform = MethodChannel('com.sample.edgedetection/processor');
     final img.Image image = img.decodeImage(widget.imageBytes)!;
     int height = image.height;
@@ -63,7 +68,6 @@ class _EditPageState extends State<EditPage> {
         'width': width
       });
       _image = img.decodeImage(result)!;
-      _image = img.copyRotate(_image, angle: 90);
     } catch (e) {
       // If the function couldn't be called, display error and set the image to the original image
       _image = image;
@@ -102,7 +106,7 @@ class _EditPageState extends State<EditPage> {
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Image.memory(img.encodeJpg(_image),
-                              fit: BoxFit.none),
+                              fit: BoxFit.contain),
                         ),
                       ),
                     );
@@ -141,7 +145,18 @@ class _EditPageState extends State<EditPage> {
                         )),
                     // Fitlers
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          // Navigate to the filters page, create a path of _image and send it to FiltersPagec
+                          await FiltersPage.navigate(context,
+                                  Uint8List.fromList(img.encodeJpg(_image)))
+                              .then(
+                            (value) {
+                              setState(() {
+                                _image = img.decodeImage(value)!;
+                              });
+                            },
+                          );
+                        },
                         icon: const Icon(
                           Icons.filter,
                           color: Colors.white,
