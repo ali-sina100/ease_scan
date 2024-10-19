@@ -17,7 +17,7 @@ class ImageProcessorPage extends StatefulWidget {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            ImageProcessorPage(),
+            const ImageProcessorPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;

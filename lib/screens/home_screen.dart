@@ -2,12 +2,9 @@ import 'package:ease_scan/features/features.dart';
 import 'package:ease_scan/screens/screens.dart';
 import 'package:ease_scan/utilities/file_utilities.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
-import '../features/auto_crop_scan/repositories/file_repository.dart';
 import '../utilities/send_feedback.dart';
 import '../utilities/share_app.dart';
 import 'pdf_viewer.dart';
@@ -68,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 UserAccountsDrawerHeader(
                   accountName: Text(user?.displayName ?? "guest"),
-                  accountEmail: Text(""),
+                  accountEmail: const Text(""),
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: user?.photoURL != null
                         ? NetworkImage(user!.photoURL!)
@@ -133,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           buildHomeTab(),
           const FileScreen(),
-          const MeScreen(),
+           const MeScreen(),
         ],
       ),
 
@@ -152,30 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
             currentTabIndex = index;
           })
         },
-        // onTap: (index) {
-        //   if (index == 2) {
-        //     // Navigate to MeScreen when "Me" tab is tapped
-        //     Navigator.push(
-        //       context,
-        //         MaterialPageRoute<ProfileScreen>(
-        //           builder: (context) => ProfileScreen(
-
-        //             actions: [
-        //               SignedOutAction((context) {
-        //                 Navigator.of(context).pop();
-        //               })
-        //             ],
-        //           ),
-        //         ),
-        //     );
-        //   }else {
-        //     setState(() {
-        //     currentTabIndex = index;
-        //   });
-        //   }
-
-        // },
-        // Navigation bar items (Home, Files, Me)
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded), label: "Home"),
@@ -264,43 +237,79 @@ class FileScreen extends StatelessWidget {
   }
 }
 
-// screen to be shown in the me tab
 class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
-
+ 
   @override
   Widget build(BuildContext context) {
-    AuthenticationProvider authenticationProvider =
-        Provider.of<AuthenticationProvider>(context, listen: true);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // show profile picture
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(90),
-                image: DecorationImage(
-                    image: NetworkImage(
-                        authenticationProvider.getUser()!.photoURL.toString()),
-                    fit: BoxFit.fill)),
+     User? user = FirebaseAuth.instance.currentUser;
+    return Padding(padding: const EdgeInsets.all(8.0),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Container(
+          color: Colors.grey,
+        
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+             CircleAvatar(
+                backgroundImage: user?.photoURL !=null 
+                ?  NetworkImage(user!.photoURL!) 
+                :  AssetImage('assets/images/download.png') as ImageProvider,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(user?.displayName ?? "Guest"),
+              ),
+              SizedBox(width: 50,),
+              ElevatedButton(onPressed: (){}, child: Text("Sign In"))
+            ],
           ),
-          // show email
-          Text(
-              "Email: ${authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
-          // show signout button
-          ElevatedButton(
-            onPressed: () {
-              authenticationProvider.signOut().then((value) {
-                LoginPage.navigate(context);
-              });
-            },
-            child: const Text("Sign Out"),
-          )
-        ],
-      ),
+        ),
+        const Text('Account')
+      ],
+    ),
     );
   }
 }
+// screen to be shown in the me tab
+// class MeScreen extends StatelessWidget {
+//   const MeScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     AuthenticationProvider authenticationProvider =
+//         Provider.of<AuthenticationProvider>(context, listen: true);
+//     return Center(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           // show profile picture
+//           Container(
+//             width: 150,
+//             height: 150,
+//             decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(90),
+//                 image: DecorationImage(
+//                     image: NetworkImage(
+//                         authenticationProvider.getUser()!.photoURL.toString()),
+//                     fit: BoxFit.fill)),
+//           ),
+//           // show email
+//           Text(
+//               "Email: ${authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
+//           // show signout button
+//           ElevatedButton(
+//             onPressed: () {
+//               authenticationProvider.signOut().then((value) {
+//                 LoginPage.navigate(context);
+//               });
+//             },
+//             child: const Text("Sign Out"),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }

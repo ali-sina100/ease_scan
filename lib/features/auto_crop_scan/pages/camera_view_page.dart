@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
+  const CameraViewPage({super.key});
+
   static navigate(context) {
     Navigator.push(
       context,
@@ -75,7 +77,9 @@ class _CameraViewPageState extends State<CameraViewPage> {
 
   Uint8List concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
-    planes.forEach((Plane plane) => allBytes.putUint8List(plane.bytes));
+    for (var plane in planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
     return allBytes.done().buffer.asUint8List();
   }
 
@@ -283,7 +287,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
 }
 
 class EdgePainter extends StatelessWidget {
-  EdgePainter({
+  const EdgePainter({
     super.key,
     required this.imageWidgetKey,
     required this.corners,
