@@ -1,15 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ease_scan/features/features.dart';
-import 'package:ease_scan/screens/screens.dart';
-import 'package:ease_scan/utilities/file_utilities.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'account_screent.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import '../utilities/send_feedback.dart';
-import '../utilities/share_app.dart';
-import 'pdf_viewer.dart';
+import '../screens/me_screen.dart';
+import '../screens/home_tab_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -111,55 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async {
           setState(() {});
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FutureBuilder<List<String>>(
-              // Fetch All pdf files that has been created
-              future: FileUtilities.getAllPDFFiles(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text("Error");
-                } else {
-                  pdfFiles = snapshot.data ?? [];
-                  return pdfFiles.isEmpty
-                      ? const Text("No PDF Files")
-                      : Expanded(
-                          child: ListView.builder(
-                            itemCount: pdfFiles.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Navigate to pdf viewer
-                                    PdfViewer.navigate(
-                                        context, pdfFiles[index]);
-                                  },
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        title: Text(
-                                            pdfFiles[index].split('/').last),
-                                      ),
-                                      const Divider(
-                                        height: 0.4,
-                                        thickness: 1,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                }
-              },
-            ),
-          ],
-        ),
+        child: const HomeTabScreen(),
       ),
     );
   }
@@ -181,105 +126,3 @@ class FileScreen extends StatelessWidget {
   }
 }
 
-class MeScreen extends StatelessWidget {
-  const MeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser;
-    String appLink =
-        "https://play.google.com/store/apps/details?id=com.azarlive.android";
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            color: Colors.grey,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundImage: user?.photoURL != null
-                      ? NetworkImage(user!.photoURL!)
-                      : const AssetImage('assets/images/download.png')
-                          as ImageProvider,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(user?.displayName ?? "Guest"),
-                ),
-                const SizedBox(
-                  width: 50,
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      if (user != null) {
-                        const SignOutButton();
-                      } else {
-                        const SignInScreen();
-                      }
-                    },
-                    child: Text(user == null ? "Sign In" : "Log Out"))
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                ListTile(
-                  title: const Text("Account"),
-                  leading: const Icon(Icons.account_circle),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute<ProfileScreen>(
-                            builder: (context) => ProfileScreen(
-                                  appBar: AppBar(
-                                    title: const Text('User Profile '),
-                                  ),
-                                  actions: [
-                                    SignedOutAction((context) {
-                                      Navigator.of(context).pop();
-                                    })
-                                  ],
-                                )));
-                  },
-                ),
-                ListTile(
-                  title: const Text("Feedback"),
-                  leading: const Icon(Icons.feedback_rounded),
-                  onTap: () {
-                    sendfeedback();
-                  },
-                ),
-                ListTile(
-                  title: const Text("Invite Friends"),
-                  leading: const Icon(Icons.person_add),
-                  onTap: () {
-                    ShareUtils().shareAppLink(appLink);
-                  },
-                ),
-                ListTile(
-                  title: const Text("Privacy Policy"),
-                  leading: const Icon(Icons.privacy_tip_outlined),
-                  onTap: () {
-                    launchUrlString(
-                        'https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
-                  },
-                ),
-                ListTile(
-                  title: const Text("Settings"),
-                  leading: const Icon(Icons.settings_rounded),
-                  onTap: () {
-                    SettingsScreen.navigate(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
