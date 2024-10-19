@@ -45,8 +45,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 0;
-  String appLink =
-      "https://play.google.com/store/apps/details?id=com.azarlive.android";
   User? user = FirebaseAuth.instance.currentUser;
   List<String> pdfFiles = [];
   goToCameraViewPage() async {
@@ -57,62 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                UserAccountsDrawerHeader(
-                  accountName: Text(user?.displayName ?? "guest"),
-                  accountEmail: const Text(""),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundImage: user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : const AssetImage(
-                                'assets/images/app_icon.png') // Fallback image
-                            as ImageProvider,
-                  ),
-                ),
-              ],
-            ),
-
-            // Settings button
-            ListTile(
-              title: const Text("Settings"),
-              leading: const Icon(Icons.settings_rounded),
-              onTap: () {
-                SettingsScreen.navigate(context);
-              },
-            ),
-            // Feedback
-            ListTile(
-              title: const Text("Feedback"),
-              leading: const Icon(Icons.feedback_rounded),
-              onTap: () {
-                sendfeedback();
-              },
-            ),
-            ListTile(
-              title: const Text("Invite Friends"),
-              leading: const Icon(Icons.person_add),
-              onTap: () {
-                ShareUtils().shareAppLink(appLink);
-              },
-            ),
-            ListTile(
-              title: const Text("Privacy Policy"),
-              leading: const Icon(Icons.privacy_tip_outlined),
-              onTap: () {
-                launchUrlString(
-                    'https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
-              },
-            ),
-          ],
-        ),
-      ),
       appBar: AppBar(
         title: const Text("Home"),
         actions: [
