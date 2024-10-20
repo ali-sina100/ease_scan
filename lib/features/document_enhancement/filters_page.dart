@@ -5,11 +5,11 @@ import 'package:image/image.dart' as img;
 
 class FiltersPage extends StatefulWidget {
   final Uint8List originalImageData;
-  FiltersPage({super.key, required this.originalImageData});
+  const FiltersPage({super.key, required this.originalImageData});
 
   // static method for navigation
   static Future<Uint8List> navigate(context, imagePath) async {
-    final _result = await Navigator.push(
+    final result = await Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -28,7 +28,7 @@ class FiltersPage extends StatefulWidget {
         },
       ),
     );
-    return _result;
+    return result;
   }
 
   @override

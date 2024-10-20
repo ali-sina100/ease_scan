@@ -12,7 +12,6 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     AuthenticationProvider authProvider =
         Provider.of<AuthenticationProvider>(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: MyThemes.dark_theme,

@@ -1,7 +1,5 @@
 import 'package:ease_scan/screens/pdf_viewer.dart';
-import 'package:ease_scan/utilities/file_utilities.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 class SearchScreen extends StatefulWidget {
   List<String> filesList;
