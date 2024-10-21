@@ -4,8 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-
-import '../../core/edge_detection_result.dart';
+import '../../core/models/edge_detection_result.dart';
 
 class ManualCropPreview extends StatefulWidget {
   ManualCropPreview(
@@ -56,7 +55,6 @@ class _EdgeDetectionPreviewState extends State<ManualCropPreview> {
     }
 
     final box = keyContext.findRenderObject() as RenderBox;
-
     return CustomPaint(
         size: Size(box.size.width, box.size.height),
         painter: EdgePainter(
@@ -65,7 +63,19 @@ class _EdgeDetectionPreviewState extends State<ManualCropPreview> {
             bottomLeft: widget.edgeDetectionResult.bottomLeft,
             bottomRight: widget.edgeDetectionResult.bottomRight,
             image: imageSnapshot.data!,
-            color: Theme.of(context).colorScheme.primary));
+            color: Theme.of(context).colorScheme.primary,
+            context: context));
+
+    // return CustomPaint(
+    //     size: Size(box.size.width, box.size.height),
+    //     painter: EdgePainter(
+    //         topLeft: widget.edgeDetectionResult.topLeft,
+    //         topRight: widget.edgeDetectionResult.topRight,
+    //         bottomLeft: widget.edgeDetectionResult.bottomLeft,
+    //         bottomRight: widget.edgeDetectionResult.bottomRight,
+    //         image: imageSnapshot.data!,
+    //         color: Theme.of(context).colorScheme.primary,
+    //         context: context));
   }
 
   Future<ui.Image> loadUiImage(String imageAssetPath) async {
@@ -86,12 +96,14 @@ class EdgePainter extends CustomPainter {
       required this.bottomLeft,
       required this.bottomRight,
       required this.image,
-      required this.color});
+      required this.color,
+      required this.context});
 
   Offset topLeft;
   Offset topRight;
   Offset bottomLeft;
   Offset bottomRight;
+  BuildContext context;
 
   ui.Image image;
   Color color;
@@ -132,10 +144,18 @@ class EdgePainter extends CustomPainter {
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPoints(ui.PointMode.polygon, points, paint);
+    canvas.drawPoints(
+      ui.PointMode.polygon,
+      points,
+      paint,
+    );
 
     for (Offset point in points) {
-      canvas.drawCircle(point, 10, paint);
+      canvas.drawCircle(
+        point,
+        10,
+        paint,
+      );
     }
   }
 

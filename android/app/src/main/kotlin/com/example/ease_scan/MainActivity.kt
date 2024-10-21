@@ -113,6 +113,37 @@ class MainActivity: FlutterActivity() {
                 }
 
             }
+            // Filters
+            else if(call.method == "applyFilter") {
+                var imagePath = call.argument<String>("image_path")
+                var filterName = call.argument<String>("filter_name")
+                if (imagePath != null) {
+                    val filterProcessor = FilterProcessor.getInstance(applicationContext)
+                    if(filterName == "GREYSCALE"){
+                        imagePath = filterProcessor.processGreyImage(imagePath)
+                    }
+                    else if(filterName == "NO_SHADOW"){
+                        imagePath = filterProcessor.processNoShadowImage(imagePath)
+                    }
+                    else if(filterName == "BLACK_WHITE"){
+                        imagePath = filterProcessor.processBlackWhiteImage(imagePath)
+                    }
+                    // else if(filterName == "INVERT"){
+                    //     imagePath = filterProcessor.processInvertImage(imagePath)
+                    // }
+                    else if(filterName == "LIGHTEN"){
+                        imagePath = filterProcessor.processLightenImage(imagePath)
+                    }
+                   else if(filterName == "ENHANCE"){
+                        imagePath = filterProcessor.processEnhanceImage(imagePath)
+                    }
+                   
+                    else{
+                        result.error("FILTER_NOT_FOUND", "Filter not found", null)
+                    }
+                    result.success(imagePath)
+                }
+            }
         }
     }
 

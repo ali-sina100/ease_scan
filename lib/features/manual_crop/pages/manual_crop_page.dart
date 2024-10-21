@@ -1,4 +1,4 @@
-import 'package:ease_scan/features/core/edge_detection_result.dart';
+import 'package:ease_scan/features/core/models/edge_detection_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

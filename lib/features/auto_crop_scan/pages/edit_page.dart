@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:ease_scan/features/core/edge_detection_result.dart';
+import 'package:ease_scan/features/core/models/edge_detection_result.dart';
 import 'package:ease_scan/features/core/scanner_engin.dart';
 import 'package:ease_scan/utilities/file_utilities.dart';
 
@@ -69,9 +69,14 @@ class _EditPageState extends State<EditPage> {
       final result =
           await ScannerEngin.instance.processCroppingImage(widget.filePath);
       cropedImagePath = result.toString();
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
+  }
+
+  void _callback(String path) {
+    setState(() {
+      cropedImagePath = path;
+      widget.filePath = path;
+    });
   }
 
   @override
@@ -164,15 +169,9 @@ class _EditPageState extends State<EditPage> {
                       // Fitlers
                       IconButton(
                           onPressed: () async {
-                            // Navigate to the filters page, create a path of _image and send it to FiltersPagec
-                            await FiltersPage.navigate(context, cropedImagePath)
-                                .then(
-                              (value) {
-                                setState(() {
-                                  _image = img.decodeImage(value)!;
-                                });
-                              },
-                            );
+                            // Navigate to the filters page, create a path of _image and send it to FiltersPage
+                            await FiltersPage.navigate(
+                                context, cropedImagePath, _callback);
                           },
                           icon: const Icon(
                             Icons.filter,
@@ -181,10 +180,10 @@ class _EditPageState extends State<EditPage> {
                       // Crop
                       IconButton(
                         onPressed: () {
-                          final topLeft = Offset(0.0, 0.0);
-                          final topRight = Offset(1.0, 0.0);
-                          final bottomLeft = Offset(0.0, 1.0);
-                          final bottomRight = Offset(1.0, 1.0);
+                          var topLeft = const Offset(0.0, 0.0);
+                          var topRight = const Offset(1.0, 0.0);
+                          var bottomLeft = const Offset(0.0, 1.0);
+                          var bottomRight = const Offset(1.0, 1.0);
                           ManualCropPage.navigate(
                               context,
                               cropedImagePath,

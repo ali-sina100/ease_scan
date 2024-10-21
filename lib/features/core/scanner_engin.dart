@@ -38,7 +38,6 @@ class ScannerEngin {
         return Offset(e['x'], e['y']);
       }).toList();
     } catch (e) {
-      print(e);
       return [];
     }
   }
@@ -53,7 +52,6 @@ class ScannerEngin {
       });
       return result;
     } catch (e) {
-      print(e);
       return imagePath;
     }
   }
@@ -63,7 +61,8 @@ class ScannerEngin {
   // Step 2: return the path of the image
   // Step 3: if any error occurs then return the original image path
 
-  Future<String> applyFilter(String imagePath, String filterName) async {
+  Future<String> applyFilter(
+      {required String imagePath, required String filterName}) async {
     try {
       final String result = await platform.invokeMethod('applyFilter', {
         'image_path': imagePath,
