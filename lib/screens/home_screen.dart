@@ -1,12 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ease_scan/features/features.dart';
-import 'package:ease_scan/screens/screens.dart';
-import 'package:ease_scan/utilities/file_utilities.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import '../utilities/share_app.dart';
-import '../utilities/send_feedback.dart';
-import 'pdf_viewer.dart';
+import '../screens/me_screen.dart';
+import '../screens/home_tab_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,8 +38,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentTabIndex = 0;
-  String appLink =
-      "https://play.google.com/store/apps/details?id=com.azarlive.android";
+  User? user = FirebaseAuth.instance.currentUser;
   List<String> pdfFiles = [];
   goToCameraViewPage() async {
     CameraViewPage.navigate(context);
@@ -53,62 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/app_icon.png'),
-                    radius: 40,
-                    backgroundColor: Colors.white,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text('ScanEase'),
-                ],
-              ),
-            ),
-            // Settings button
-            ListTile(
-              title: const Text("Settings"),
-              leading: const Icon(Icons.settings_rounded),
-              onTap: () {
-                SettingsScreen.navigate(context);
-              },
-            ),
-            // Feedback
-            ListTile(
-              title: const Text("Feedback"),
-              leading: const Icon(Icons.feedback_rounded),
-              onTap: () {
-                sendfeedback();
-              },
-            ),
-            ListTile(
-              title: const Text("Invite Friends"),
-              leading: const Icon(Icons.person_add),
-              onTap: () {
-                ShareUtils().shareAppLink(appLink);
-              },
-            ),
-            ListTile(
-              title: const Text("Privacy Policy"),
-              leading: const Icon(Icons.privacy_tip_outlined),
-              onTap: () {
-                launchUrlString(
-                    'https://najeebullah04.github.io/ScanEase-Privacy-Policy/Scan_Ease_Privacy_Policy.html');
-              },
-            ),
-          ],
-        ),
-      ),
       appBar: AppBar(
         title: const Text("Home"),
         actions: [
@@ -142,12 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
       // Bottom navigation bar to switch between tabs
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentTabIndex,
-        onTap: (index) {
+        onTap: (index) => {
           setState(() {
             currentTabIndex = index;
-          });
+          })
         },
-        // Navigation bar items (Home, Files, Me)
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded), label: "Home"),
@@ -166,55 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async {
           setState(() {});
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FutureBuilder<List<String>>(
-              // Fetch All pdf files that has been created
-              future: FileUtilities.getAllPDFFiles(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text("Error");
-                } else {
-                  pdfFiles = snapshot.data ?? [];
-                  return pdfFiles.isEmpty
-                      ? const Text("No PDF Files")
-                      : Expanded(
-                          child: ListView.builder(
-                            itemCount: pdfFiles.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Navigate to pdf viewer
-                                    PdfViewer.navigate(
-                                        context, pdfFiles[index]);
-                                  },
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        title: Text(
-                                            pdfFiles[index].split('/').last),
-                                      ),
-                                      const Divider(
-                                        height: 0.4,
-                                        thickness: 1,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                }
-              },
-            ),
-          ],
-        ),
+        child: const HomeTabScreen(),
       ),
     );
   }
@@ -236,44 +126,3 @@ class FileScreen extends StatelessWidget {
   }
 }
 
-//screen to be shown in the me tab
-class MeScreen extends StatelessWidget {
-  const MeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    AuthenticationProvider authenticationProvider =
-        Provider.of<AuthenticationProvider>(context, listen: true);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // show profile picture
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(90),
-                image: DecorationImage(
-                    image: NetworkImage(
-                        authenticationProvider.getUser()!.photoURL.toString()),
-                    fit: BoxFit.fill)),
-          ),
-          // show email
-          Text(
-              "Email: ${authenticationProvider.getUser()?.email ?? "Not SignedIn"}"),
-
-          // show signout button
-          ElevatedButton(
-            onPressed: () {
-              authenticationProvider.signOut().then((value) {
-                LoginPage.navigate(context);
-              });
-            },
-            child: const Text("Sign Out"),
-          )
-        ],
-      ),
-    );
-  }
-}

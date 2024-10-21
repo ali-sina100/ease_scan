@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/scanner_engin.dart';
 
 class FiltersPage extends StatefulWidget {
+
   final String image_path;
   final Function callback;
   FiltersPage({super.key, required this.image_path, required this.callback});
@@ -13,6 +14,7 @@ class FiltersPage extends StatefulWidget {
   static Future<String> navigate(
       context, String imagePath, Function callback) async {
     await Navigator.push(
+
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => FiltersPage(
@@ -33,7 +35,9 @@ class FiltersPage extends StatefulWidget {
         },
       ),
     );
+
     return ''; // Add a return statement to ensure a String is always returned
+
   }
 
   @override

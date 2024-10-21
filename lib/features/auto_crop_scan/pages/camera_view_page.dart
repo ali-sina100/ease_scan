@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:ease_scan/screens/home_screen.dart';
@@ -15,6 +14,8 @@ import '../../core/scanner_engin.dart';
 import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
+  const CameraViewPage({super.key});
+
   static navigate(context) {
     // clean the temp directory
     FileUtilities.deleteAllTempFiles();
@@ -91,7 +92,9 @@ class _CameraViewPageState extends State<CameraViewPage> {
 
   Uint8List concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
-    planes.forEach((Plane plane) => allBytes.putUint8List(plane.bytes));
+    for (var plane in planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
     return allBytes.done().buffer.asUint8List();
   }
 
@@ -299,7 +302,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
 }
 
 class EdgePainter extends StatelessWidget {
-  EdgePainter({
+  const EdgePainter({
     super.key,
     required this.imageWidgetKey,
     required this.corners,
