@@ -1,5 +1,4 @@
 package com.example.ease_scan
-
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
@@ -15,10 +14,12 @@ import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
-
 class MainActivity: FlutterActivity() {
     
     private val CHANNEL = "com.sample.edgedetection/processor"
@@ -53,11 +54,22 @@ class MainActivity: FlutterActivity() {
                     val corners = processImage(it)
                     if (corners != null) {
                         // Send corners data back to Flutter if needed
-                        val modifiedString = corners.corners.toString().replace("{", "[")
-                                  .replace("}", "]")
-                        result.success(modifiedString)
+//                        val modifiedString = corners.corners.toString().replace("{", "[")
+//                                  .replace("}", "]")
+                        // change corners to [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}]
+                       val pointsList = corners.corners.mapNotNull { point ->
+            point?.let {
+                mapOf("x" to it.x, "y" to it.y)
+            }
+        }
+                        result.success(pointsList)
+                        
+                        
+
+
+                        
                     } else {
-                        result.success("null")
+                        result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
                     }
                 } ?: run {
                     result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
@@ -66,37 +78,41 @@ class MainActivity: FlutterActivity() {
                 result.notImplemented()
             }}
             else if(call.method == "cropImage"){
-
-                val imageBytes = call.argument<ByteArray>("byteData")
-                val width = call.argument<Int>("width") 
-                val height = call.argument<Int>("height")
-                println(width)
-                println(height)
-                println(imageBytes)
-               if (imageBytes != null && width != null && height != null){
-
-                val bitmap: Bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-
-
-                
-                bitmap?.let {
-                        val croppedImage = cropImageProcess(it)
+                val image_path = call.argument<String>("image_path")
+                // Get all files in the directory '/files/temp/' and list
+                val directoryPath = applicationContext.filesDir.absolutePath + "/temp/"
+                 val croppedImagePath = applicationContext.filesDir.absolutePath + "/cropped/"
+                // Load the copy of image from the absolute path
+                val image = File(image_path)
+                // Convert image to bitmap
+                BitmapFactory.decodeFile(image?.absolutePath)?.let {
+                    val croppedImageMat: Mat? = cropImageProcess(it)
+                    croppedImageMat?.let { mat ->
+                        // Convert the cropped image to a Bitmap
+                        val croppedImage = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
                         if (croppedImage != null) {
-                            println("croppedImage")
-                            println("---------------------")
-                            result.success(matToByteArray(croppedImage))
-
+                            // Save the cropped image into '/files/cropped/' directory already created
+                           
+                            val croppedImageFile = File(croppedImagePath,"cropped_image_${System.currentTimeMillis()}.png")
+                            Utils.matToBitmap(mat, croppedImage)
+                            if (!croppedImageFile.parentFile.exists()) {
+                                croppedImageFile.parentFile.mkdirs()
+                            }
+                            val croppedImageOutputStream = FileOutputStream(croppedImageFile)
+                            croppedImage.compress(Bitmap.CompressFormat.PNG, 100, croppedImageOutputStream)
+                            croppedImageOutputStream.close()
+                            result.success(croppedImageFile.absolutePath)
                         } else {
-                            result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
+                            result.error("CROPPED_IMAGE_NULL", "Cropped image is null", null)
                         }
-                       result.success(matToByteArray(croppedImage!!))
+                    } ?: run {
+                        result.error("CROPPED_IMAGE_MAT_NULL", "Cropped image Mat is null", null)
+                    }
                 } ?: run {
-                    result.error("Bitmap Conversion", "Failed to convert ByteArray to Bitmap", null)
+                    result.error("IMAGE_NULL", "Image is null", null)
                 }
-            }else {
-                result.notImplemented()
+
             }
-            } 
         }
     }
 
@@ -132,86 +148,61 @@ class MainActivity: FlutterActivity() {
             return null
         }
     }
-    // cropImageProcess function
-    // private fun cropImageProcess(bitmap: Bitmap): Mat? {
-    //     val mat = Mat()
-    //     Utils.bitmapToMat(bitmap, mat)
-    //     val corners = processPicture(mat)
-    //     // Ensure corners is not null and contains non-null Points
-    //     val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
-    //         cropPicture(mat, corners.corners.filterNotNull())
-    //     } else {
-    //         null
-    //     }
-    //     // Rotate the cropped image 90 degres
-    //     Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
+    //cropImageProcess function
+    private fun cropImageProcess(bitmap: Bitmap): Mat? {
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        val corners = processPicture(mat)
+        // Ensure corners is not null and contains non-null Points
+        val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
+            cropPicture(mat, corners.corners.filterNotNull())
+        } else {
+            null
+        }
+        // Rotate the cropped image 90 degres
+        Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
 
-    //    //  Enhance the cropped image
-    //      Imgproc.cvtColor(croppedImageMat, croppedImageMat, Imgproc.COLOR_RGBA2GRAY)
-    //         Imgproc.adaptiveThreshold(
-    //             croppedImageMat,
-    //             croppedImageMat,
-    //             255.0,
-    //             Imgproc.ADAPTIVE_THRESH_MEAN_C,
-    //             Imgproc.THRESH_BINARY,
-    //             15,
-    //             15.0
-    //         )
-    //     mat.release()
-    //     return croppedImageMat
-    // }
- private fun cropImageProcess(bitmap: Bitmap): Mat? {
-    val mat = Mat()
-    Utils.bitmapToMat(bitmap, mat)
+        //apply gaussian blur
+        Imgproc.GaussianBlur(croppedImageMat, croppedImageMat, Size(5.0, 5.0), 0.0)
 
-    val corners = processPicture(mat)
-    
-    // Ensure corners is not null and contains non-null Points
-    val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
-        cropPicture(mat, corners.corners.filterNotNull())
-    } else {
-        null
+       //  Enhance the cropped image
+        //  Imgproc.cvtColor(croppedImageMat, croppedImageMat, Imgproc.COLOR_RGBA2GRAY)
+        //     Imgproc.adaptiveThreshold(
+        //         croppedImageMat,
+        //         croppedImageMat,
+        //         255.0,
+        //         Imgproc.ADAPTIVE_THRESH_MEAN_C,
+        //         Imgproc.THRESH_BINARY,
+        //         15,
+        //         15.0
+        //     )
+        // mat.release()
+        return croppedImageMat
     }
+//  private fun cropImageProcess(bitmap: Bitmap): Mat? {
+//     val mat = Mat()
+//     Utils.bitmapToMat(bitmap, mat)
+//     val corners = processPicture(mat)
+//     // Ensure corners is not null and contains non-null Points
+//     val croppedImageMat = if (corners != null && corners.corners.all { it != null }) {
+//         cropPicture(mat, corners.corners.filterNotNull())
+//     } else {
+//         null
+//     }
 
-    Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
-    // if (croppedImageMat != null) {
-    //     // Rotate the cropped image 90 degrees
-    //     Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
+//     if (croppedImageMat != null) {
+//     Core.rotate(croppedImageMat, croppedImageMat, Core.ROTATE_90_CLOCKWISE)
+//     mat.release()
+//     return croppedImageMat
+//     }
 
-    //     // Apply color enhancement (no grayscale conversion)
-    //     // 1. Adjust brightness and contrast (hard-coded values)
-    //     croppedImageMat.convertTo(croppedImageMat, -1, 1.2, 30.0)  // alpha=1.2 (contrast), beta=30 (brightness)
-
-    //     // 2. Apply histogram equalization to enhance contrast (only to luminance)
-    //     val ycrcb = Mat()
-    //     Imgproc.cvtColor(croppedImageMat, ycrcb, Imgproc.COLOR_RGB2YCrCb)
-
-    //     val channels = ArrayList<Mat>()
-    //     Core.split(ycrcb, channels)
-
-    //     // Apply histogram equalization to the Y channel (luminance channel)
-    //     Imgproc.equalizeHist(channels[0], channels[0])
-
-    //     // Merge the channels back
-    //     Core.merge(channels, ycrcb)
-
-    //     // Convert back to RGB
-    //     Imgproc.cvtColor(ycrcb, croppedImageMat, Imgproc.COLOR_YCrCb2RGB)
-
-    //     // Release intermediate Mat objects to free memory
-    //     ycrcb.release()
-    //     for (channel in channels) {
-    //         channel.release()
-    //     }
-    // }
-    mat.release()
-    return croppedImageMat
-}
+//     mat.release()
+//     return null; 
+// }
 
     // Function to start manage the process of finding corners
     private fun processImage(bitmap: Bitmap): Corners? {
         val mat = Mat()
-        
         Utils.bitmapToMat(bitmap, mat)
         val corners = processPicture(mat)
         mat.release()
@@ -250,6 +241,7 @@ fun cropPicture(picture: Mat, pts: List<Point>): Mat {
     val srcMat = Mat(4, 1, CvType.CV_32FC2)
     val dstMat = Mat(4, 1, CvType.CV_32FC2)
 
+    
     srcMat.put(0, 0, tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y)
     dstMat.put(0, 0, 0.0, 0.0, dw, 0.0, dw, dh, 0.0, dh)
 
@@ -261,6 +253,30 @@ fun cropPicture(picture: Mat, pts: List<Point>): Mat {
     dstMat.release()
     Log.i(TAG, "crop finish")
     return croppedPic
+}
+// Magic Color filter
+fun applyBrightnessContrast(inputImg: Mat, brightness: Int = 0, contrast: Int = 0): Mat {
+    val outputImg = Mat()
+    inputImg.copyTo(outputImg)
+
+    if (brightness != 0) {
+        val shadow = if (brightness > 0) brightness else 0
+        val highlight = if (brightness > 0) 255 else 255 + brightness
+        val alphaB = (highlight - shadow) / 255.0
+        val gammaB = shadow.toDouble()
+
+        Core.addWeighted(inputImg, alphaB, inputImg, 0.0, gammaB, outputImg)
+    }
+
+    if (contrast != 0) {
+        val f = 131.0 * (contrast + 127) / (127 * (131 - contrast))
+        val alphaC = f
+        val gammaC = 127 * (1 - f)
+
+        Core.addWeighted(outputImg, alphaC, outputImg, 0.0, gammaC, outputImg)
+    }
+
+    return outputImg
 }
 
 fun enhancePicture(src: Bitmap?): Bitmap {

@@ -94,6 +94,43 @@ class FileUtilities {
     }
   }
 
+  // Save file into temporary directory and when the directory is not available, create it
+  // Step 1: Create a directory
+  // Step 2: Save the file into the directory
+  static Future<String> saveTempFile(XFile file) async {
+    final directory =
+        Directory('/data/user/0/com.example.ease_scan/files/temp');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    String filePath = '${directory.path}/${file.name}';
+    await file.saveTo(filePath);
+    return filePath;
+  }
+
+  //Delete all files in the '/data/user/0/com.example.ease_scan/files/temp' directory
+  // 1:- Get the directory path
+  // 2:- Check if the directory exists
+  // 3:- Delete the directory
+
+  static Future<void> deleteAllTempFiles() async {
+    final directory =
+        Directory('/data/user/0/com.example.ease_scan/files/temp');
+
+    final croppedImagesDirectory =
+        Directory('/data/user/0/com.example.ease_scan/files/cropped');
+        // following code will delete the directory files 
+        
+
+
+    if (await directory.exists()) {
+      directory.deleteSync(recursive: true);
+    }
+    if (await croppedImagesDirectory.exists()) {
+      croppedImagesDirectory.deleteSync(recursive: true);
+    }
+  }
+
   // Function to rename file
   static Future<void> renameFile(String pdfPath, String newName) async {
     // Extract the directory from the original file path

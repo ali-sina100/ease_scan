@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:ease_scan/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -7,16 +8,16 @@ import '../../../utilities/file_utilities.dart';
 import '../../features.dart';
 
 class PdfExportPage extends StatefulWidget {
-  late Uint8List image_file;
-  PdfExportPage({required this.image_file, super.key});
+  late String image_path;
+  PdfExportPage({required this.image_path, super.key});
 
-  // static method for navigation
-  static navigate(context, Uint8List jpgImage) {
+  // static method for image_path
+  static navigate(context, String image_path) {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => PdfExportPage(
-          image_file: jpgImage,
+          image_path: image_path,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
@@ -42,6 +43,8 @@ class _PdfExportPageState extends State<PdfExportPage> {
   final pdfDoc = pw.Document();
   // path to saved Pdf file
   String pdfPath = '';
+  // image bytes
+  late Uint8List image_bytes = File(widget.image_path).readAsBytesSync();
 
   // Function to create the pdf file
   Future<void> _createPdf() async {
@@ -52,7 +55,9 @@ class _PdfExportPageState extends State<PdfExportPage> {
         build: (context) {
           return pw.Center(
             child: pw.Image(
-              pw.MemoryImage(widget.image_file),
+              //add the image to the pdf from the image path
+              pw.MemoryImage(image_bytes),
+
               fit: pw.BoxFit.contain, // Ensure the image fits within the page
             ),
           );
@@ -188,7 +193,7 @@ class _PdfExportPageState extends State<PdfExportPage> {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Image.memory(widget.image_file),
+                      child: Image.memory(image_bytes),
                     );
                   } else {
                     return const Center(child: CircularProgressIndicator());
