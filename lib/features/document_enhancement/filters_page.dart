@@ -1,19 +1,26 @@
+import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img;
+
+import '../core/scanner_engin.dart';
 
 class FiltersPage extends StatefulWidget {
-  final Uint8List originalImageData;
-  const FiltersPage({super.key, required this.originalImageData});
+
+  final String image_path;
+  final Function callback;
+  FiltersPage({super.key, required this.image_path, required this.callback});
 
   // static method for navigation
-  static Future<Uint8List> navigate(context, imagePath) async {
-    final result = await Navigator.push(
+  static Future<String> navigate(
+      context, String imagePath, Function callback) async {
+    await Navigator.push(
+
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            FiltersPage(originalImageData: imagePath),
+        pageBuilder: (context, animation, secondaryAnimation) => FiltersPage(
+          image_path: imagePath,
+          callback: callback,
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
           var end = Offset.zero;
@@ -28,7 +35,9 @@ class FiltersPage extends StatefulWidget {
         },
       ),
     );
-    return result;
+
+    return ''; // Add a return statement to ensure a String is always returned
+
   }
 
   @override
@@ -36,178 +45,274 @@ class FiltersPage extends StatefulWidget {
 }
 
 class _FiltersPageState extends State<FiltersPage> {
-  late img.Image editedImage;
-  late img.Image originalImage;
-  late Uint8List originalImageData;
-  late Map<String, img.Image> filterThumbnails;
+  late String path;
+  // Replace the widget.image_path with path
+  Future<void> saveFilteredImage() async {
+    widget.callback(path);
+    Navigator.pop(context);
+  }
 
   @override
   void initState() {
+    path = widget.image_path;
     super.initState();
-    originalImage = img.decodeImage(widget.originalImageData)!;
-    editedImage = img.decodeImage(widget.originalImageData)!;
-    originalImageData = widget.originalImageData;
-
-    filterThumbnails = _generateFilterThumbnails();
-  }
-
-  Map<String, img.Image> _generateFilterThumbnails() {
-    // a very small thumnail version of original image
-    img.Image thumbnail =
-        img.copyResize(originalImage, width: originalImage.width ~/ 10);
-    Uint8List thumbnailData = img.encodeJpg(thumbnail);
-    return {
-      'No Filter': img.decodeImage(thumbnailData)!,
-      'AutoEnhance': img.decodeImage(thumbnailData)!,
-      'Grayscale': img.grayscale(img.decodeImage(thumbnailData)!),
-      'Sepia': img.sepia(img.decodeImage(thumbnailData)!),
-      'Invert': img.invert(img.decodeImage(thumbnailData)!),
-      'Brightness':
-          img.adjustColor(img.decodeImage(thumbnailData)!, brightness: 1.5),
-      'Contrast': img.contrast(img.decodeImage(thumbnailData)!, contrast: 150),
-    };
   }
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
-
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Filters'),
       ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
           // Image
+          Image.file(File(path)),
+          // Filter and ok button
           Positioned(
             bottom: 0,
             left: 0,
-            right: 0,
-            top: 0,
             child: Padding(
-                padding: const EdgeInsets.all(14.0),
-                // show edidted image
-                child: Image.memory(
-                    Uint8List.fromList(img.encodeJpg(editedImage)))),
-          ),
-          // bottom bar filter list
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: height * 0.14,
-              color: Colors.white10,
-              width: width,
+              padding: const EdgeInsets.all(8.0),
+              // Filter and ok button
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Filters list
-                  Expanded(
-                    flex: 5,
+                  SizedBox(
+                    height: 100,
+                    width: MediaQuery.of(context).size.width * 0.7,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      children: filterThumbnails.keys
-                          .map((filterName) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    switch (filterName) {
-                                      case 'No Filter':
-                                        editedImage =
-                                            img.decodeImage(originalImageData)!;
-                                        break;
-                                      case 'AutoEnhance':
-                                        editedImage =
-                                            img.decodeImage(originalImageData)!;
-                                        // Adjust brightness
-                                        editedImage = img.adjustColor(
-                                            editedImage,
-                                            brightness: 1.2);
-                                        // Adjust contrast
-                                        editedImage = img.contrast(editedImage,
-                                            contrast: 150);
-                                        // Adjust gamma (color balance)
-                                        editedImage = img.adjustColor(
-                                            editedImage,
-                                            gamma: 1.1);
-                                        break;
-                                      case 'Grayscale':
-                                        editedImage = img.grayscale(img
-                                            .decodeImage(originalImageData)!);
-                                        break;
-                                      case 'Sepia':
-                                        editedImage = img.sepia(img
-                                            .decodeImage(originalImageData)!);
-                                        break;
-                                      case 'Invert':
-                                        editedImage = img.invert(img
-                                            .decodeImage(originalImageData)!);
-                                        break;
-                                      case 'Brightness':
-                                        editedImage = img.adjustColor(
-                                            img.decodeImage(originalImageData)!,
-                                            brightness: 1.5);
-                                        break;
-                                      case 'Contrast':
-                                        editedImage = img.contrast(
-                                            img.decodeImage(originalImageData)!,
-                                            contrast: 150);
-                                        break;
-                                    }
-                                    setState(() {});
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Image.memory(
-                                        img.encodeJpg(
-                                            filterThumbnails[filterName]!),
-                                        width: 65,
-                                        height: 65,
-                                      ),
-                                      Text(
-                                        filterName,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
+                      children: [
+                        //Original
+                        GestureDetector(
+                          onTap: () async {
+                            setState(() {
+                              path = widget.image_path;
+                            });
+                          },
+                          child: SizedBox(
+                            height: 100,
+                            width: 50,
+                            child: Column(
+                              children: [
+                                // Thumbnail
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 70, 129, 237),
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(12))),
                                 ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  // Save button
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white, width: 0.2)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              // Save the edited image
-                              Navigator.pop(
-                                  context, img.encodeJpg(editedImage));
-                            },
-                            icon: const Icon(
-                              Icons.save,
-                              color: Colors.blue,
+                                const Text(
+                                  "Original",
+                                  style: TextStyle(fontSize: 13),
+                                )
+                              ],
                             ),
                           ),
-                          const Text(
-                            'Save',
-                            style: TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        //Auto Enhance
+                        GestureDetector(
+                          onTap: () async {
+                            path = await ScannerEngin.instance
+                                .applyFilter(
+                                    imagePath: widget.image_path,
+                                    filterName: "ENHANCE")
+                                .then((value) {
+                              setState(() {
+                                path = value;
+                              });
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              // Thumbnail
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: const BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12))),
+                              ),
+                              const Text(
+                                "Auto Enhance",
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
                           ),
-                        ],
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        //Greyscale Filter
+                        GestureDetector(
+                          onTap: () async {
+                            await ScannerEngin.instance
+                                .applyFilter(
+                                    imagePath: widget.image_path,
+                                    filterName: "GREYSCALE")
+                                .then((value) {
+                              setState(() {
+                                path = value;
+                              });
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              // Thumbnail
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: const BoxDecoration(
+                                    color: Colors.grey,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12))),
+                              ),
+                              const Text(
+                                "Greyscale",
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        // No Shadow
+                        GestureDetector(
+                          onTap: () async {
+                            path = await ScannerEngin.instance
+                                .applyFilter(
+                                    imagePath: widget.image_path,
+                                    filterName: "NO_SHADOW")
+                                .then((value) {
+                              setState(() {
+                                path = value;
+                              });
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              // Thumbnail
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: const BoxDecoration(
+                                    color: Colors.grey,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12))),
+                              ),
+                              const Text(
+                                "No Shadow",
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        // Black and White
+                        GestureDetector(
+                          onTap: () async {
+                            path = await ScannerEngin.instance
+                                .applyFilter(
+                                    imagePath: widget.image_path,
+                                    filterName: "BLACK_WHITE")
+                                .then((value) {
+                              setState(() {
+                                path = value;
+                              });
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              // Thumbnail
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 33, 33, 33),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12))),
+                              ),
+                              const Text(
+                                "B&W",
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        // Lighten
+                        GestureDetector(
+                          onTap: () async {
+                            path = await ScannerEngin.instance
+                                .applyFilter(
+                                    imagePath: widget.image_path,
+                                    filterName: "LIGHTEN")
+                                .then((value) {
+                              setState(() {
+                                path = value;
+                              });
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              // Thumbnail
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12))),
+                              ),
+                              const Text(
+                                "Lighten",
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Button
+                  GestureDetector(
+                    onTap: () async {
+                      await saveFilteredImage();
+                    },
+                    child: Center(
+                      child: Container(
+                        height: 35,
+                        width: MediaQuery.of(context).size.width * 0.20,
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(
+                          Icons.check,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
+          )
         ],
       ),
     );
