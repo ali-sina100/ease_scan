@@ -93,6 +93,7 @@ flutter:
     - assets/images/
     - assets/animations/lotties/
     - assets/images/authentication/
+    - assets/images/download.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
