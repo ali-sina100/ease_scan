@@ -29,7 +29,7 @@ class MeScreen extends StatelessWidget {
                 fit: BoxFit.cover,
                 
               ),
-               borderRadius: BorderRadius.circular(20),
+               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -65,12 +65,14 @@ class MeScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Text(user?.displayName ?? "Guest",
-                  style:const TextStyle(
-                    fontWeight: FontWeight.bold
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    // color: ? Colors.white : Colors.black
+                     color: Theme.of(context).brightness==Brightness.light ? Colors.white :Colors.white
                   ),),
                 ),
                 const SizedBox(
-                  width: 40,
+                  width: 20,
                 ),
                 ElevatedButton(
                     onPressed: () {
@@ -103,7 +105,8 @@ class MeScreen extends StatelessWidget {
             height: 300,
             decoration:  BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Colors.grey[800], 
+            // color: Colors.grey[800], 
+            color: Theme.of(context).brightness==Brightness.light ?Colors.purple[100]: Colors.grey[800]
             ),
             
             child: Expanded(

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
