@@ -1,18 +1,24 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:ease_scan/screens/home_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../utilities/file_utilities.dart';
+import '../../core/scanner_engin.dart';
 import 'edit_page.dart';
 
 class CameraViewPage extends StatefulWidget {
   const CameraViewPage({super.key});
 
   static navigate(context) {
+    // clean the temp directory
+    FileUtilities.deleteAllTempFiles();
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -44,6 +50,8 @@ class _CameraViewPageState extends State<CameraViewPage> {
   bool _isProcessing = false;
   List<Offset>? corners;
   GlobalKey imageWidgetKey = GlobalKey();
+  bool _canSendToNative = false;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -57,11 +65,19 @@ class _CameraViewPageState extends State<CameraViewPage> {
     _controller =
         CameraController(cameras[0], ResolutionPreset.max, enableAudio: false)
           ..setFocusMode(FocusMode.auto);
+    // this timer used to manage the image processing time and send the image to the native side
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 300),
+      (timer) {
+        _canSendToNative = true;
+      },
+    );
 
     await _controller?.initialize();
     _controller?.startImageStream((CameraImage image) {
-      if (!_isProcessing) {
+      if (!_isProcessing && _canSendToNative) {
         _isProcessing = true;
+        _canSendToNative = false;
         processCameraImage(image);
       }
     });
@@ -70,8 +86,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
 
   Future<void> processCameraImage(CameraImage image) async {
     final byteData = concatenatePlanes(image.planes);
-    await _sendToNative(byteData);
-
+    _sendToNative(byteData);
     _isProcessing = false;
   }
 
@@ -84,24 +99,15 @@ class _CameraViewPageState extends State<CameraViewPage> {
   }
 
   Future<void> _sendToNative(Uint8List byteData) async {
-    const platform = MethodChannel('com.sample.edgedetection/processor');
-    var width = _controller!.value.previewSize!.width;
-    var height = _controller!.value.previewSize!.height;
+    double width = _controller!.value.previewSize!.width;
+    double height = _controller!.value.previewSize!.height;
 
     try {
-      String result =
-          await platform.invokeMethod('processImage', <String, dynamic>{
-        'byteData': byteData,
-        'width': width,
-        'height': height,
-      });
-      // [[0.0, 76.0], [639.0, 75.0], [639.0, 479.0], [0.0, 479.0]]
-      if (result != "null") {
-        List<dynamic> list = jsonDecode(result);
-        // Assuming result is a list of offsets like [[0.0, 76.0], [639.0, 75.0], [639.0, 479.0], [0.0, 479.0]]
+      List<Offset> result =
+          await ScannerEngin.instance.detectCorners(byteData, width, height);
+      if (result.isNotEmpty) {
         setState(() {
-          corners =
-              list.map<Offset>((point) => Offset(point[0], point[1])).toList();
+          corners = result;
         });
       } else {
         setState(() {
@@ -116,6 +122,7 @@ class _CameraViewPageState extends State<CameraViewPage> {
   @override
   void dispose() {
     _controller?.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -125,7 +132,10 @@ class _CameraViewPageState extends State<CameraViewPage> {
       return Container();
     }
     return WillPopScope(
-      onWillPop: () => HomeScreen.navigate(context),
+      onWillPop: () async {
+        HomeScreen.navigate(context);
+        return false;
+      },
       child: Scaffold(
           backgroundColor: Colors.black,
           body: Stack(
@@ -239,16 +249,17 @@ class _CameraViewPageState extends State<CameraViewPage> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                // Take the picture and then go to edit page
-                                _controller!.takePicture().then(
-                                  (value) async {
-                                    await value.readAsBytes().then(
-                                      (value) {
-                                        EditPage.navigate(context, value);
-                                      },
-                                    );
-                                  },
-                                );
+                                try {
+                                  // Take the picture from the camera
+                                  final file = await _controller!.takePicture();
+                                  // Save file to /temp directory
+                                  String path =
+                                      await FileUtilities.saveTempFile(file);
+                                  // Navigate to EditPage
+                                  EditPage.navigate(context, path);
+                                } catch (e) {
+                                  print('Error taking picture: $e');
+                                }
                               },
                               child: Container(
                                 width: 60,
@@ -264,12 +275,16 @@ class _CameraViewPageState extends State<CameraViewPage> {
                         // Gallery button
                         IconButton(
                           onPressed: () async {
+                            // Pick a file from the gallery
                             final pickedFile = await ImagePicker()
                                 .pickImage(source: ImageSource.gallery);
+                            // Check if the file is not null
                             if (pickedFile != null) {
-                              Uint8List byteData =
-                                  await pickedFile.readAsBytes();
-                              EditPage.navigate(context, byteData);
+                              // Save file to /temp directory
+                              String path =
+                                  await FileUtilities.saveTempFile(pickedFile);
+                              // Navigate to EditPage
+                              EditPage.navigate(context, path);
                             }
                           },
                           icon: const Icon(Icons.photo_library_rounded,
@@ -317,9 +332,9 @@ class CornerOverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color.fromARGB(165, 208, 208, 208)
+      ..color = Colors.blue
       ..strokeWidth = 3.0
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.stroke;
 
     // this will show a rectangle around the detected object
 
@@ -339,10 +354,6 @@ class CornerOverlay extends CustomPainter {
       ..close();
 
     canvas.drawPath(path, paint);
-
-    for (var corner in transformedCorners) {
-      canvas.drawCircle(corner, 5, paint);
-    }
   }
 
   @override
