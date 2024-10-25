@@ -11,9 +11,7 @@ import '../../document_exportation/pages/pdf_export_page.dart';
 import 'package:image/image.dart' as img;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import '../../manual_crop/manual_crop.dart';
 import '../../manual_crop/pages/manual_crop_page.dart';
 import 'camera_view_page.dart';
 

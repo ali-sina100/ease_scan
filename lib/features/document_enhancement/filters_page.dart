@@ -8,7 +8,7 @@ class FiltersPage extends StatefulWidget {
 
   final String image_path;
   final Function callback;
-  FiltersPage({super.key, required this.image_path, required this.callback});
+  const FiltersPage({super.key, required this.image_path, required this.callback});
 
   // static method for navigation
   static Future<String> navigate(

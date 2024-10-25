@@ -1,5 +1,4 @@
 import 'package:ease_scan/features/core/models/edge_detection_result.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../manual_crop.dart';

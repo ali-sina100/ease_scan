@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import '../../core/models/edge_detection_result.dart';
 
 class ManualCropPreview extends StatefulWidget {
-  ManualCropPreview(
-      {required this.imagePath, required this.edgeDetectionResult});
+  const ManualCropPreview(
+      {super.key, required this.imagePath, required this.edgeDetectionResult});
 
   final String imagePath;
   final EdgeDetectionResult edgeDetectionResult;

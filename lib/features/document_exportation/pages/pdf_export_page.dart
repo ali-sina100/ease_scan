@@ -12,12 +12,12 @@ class PdfExportPage extends StatefulWidget {
   PdfExportPage({required this.image_path, super.key});
 
   // static method for image_path
-  static navigate(context, String image_path) {
+  static navigate(context, String imagePath) {
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => PdfExportPage(
-          image_path: image_path,
+          image_path: imagePath,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           var begin = const Offset(1.0, 0.0);
