@@ -3,6 +3,7 @@ import 'package:ease_scan/features/features.dart';
 import 'package:flutter/material.dart';
 import '../screens/me_screen.dart';
 import '../screens/home_tab_screen.dart';
+import 'file_screen.dart';
 import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -110,19 +111,5 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-//screen to be shown in the files tab
-class FileScreen extends StatelessWidget {
-  const FileScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text("Files"),
-      ],
-    ));
-  }
-}
 
