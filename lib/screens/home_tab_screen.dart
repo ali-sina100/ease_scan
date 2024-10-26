@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utilities/file_utilities.dart';
 import 'pdf_viewer.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+
 
 class HomeTabScreen extends StatelessWidget {
   const HomeTabScreen({super.key});
@@ -38,8 +40,19 @@ class HomeTabScreen extends StatelessWidget {
                                   child: Column(
                                     children: [
                                       ListTile(
-                                        title: Text(
-                                            pdfFiles[index].split('/').last),
+                                        title: Row(
+                                          children: [
+                                            
+                                           SizedBox(
+                                            height: 40,
+                                            width: 40,
+                                            // child: const Image(image: AssetImage("assets/images/app_icon.png"))),
+                                            child: PDFView(filePath: pdfFiles[index],)),
+                                            const SizedBox(width: 5,),
+                                               Text(
+                                                pdfFiles[index].split('/').last),
+                                          ],
+                                        ),
                                       ),
                                       const Divider(
                                         height: 0.4,
