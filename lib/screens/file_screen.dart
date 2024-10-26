@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../utilities/file_utilities.dart';
 import '../features/auto_crop_scan/pages/edit_page.dart';
 import 'home_tab_screen.dart';
+import 'package:file_picker/file_picker.dart';
 class FileScreen extends StatelessWidget {
   const FileScreen({super.key});
 
@@ -37,17 +38,17 @@ class FileScreen extends StatelessWidget {
             ),
             TextButton.icon(
             onPressed: () async {
-                // Pick a file from the gallery
-                final pickedFile = await ImagePicker()
-                    .pickImage(source: ImageSource.gallery);
-                // Check if the file is not null
-                if (pickedFile != null) {
-                  // Save file to /temp directory
-                  String path =
-                      await FileUtilities.saveTempFile(pickedFile);
-                  // Navigate to EditPage
-                  EditPage.navigate(context, path);
-                }
+               final file = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ["jpg","png","pdf","doc","docx"]
+               );
+                 // Check if a file was selected
+                  if (file != null && file.files.single.path != null) {
+                    // Get the path of the file picked
+                    String path = file.files.single.path!;
+                    
+                    EditPage.navigate(context, path); // Pass the path to EditPage
+                  }
                },
             icon: const Icon( Icons.file_open , color: Colors.purple, size: 40,),
             label: const Text("Import File")),
