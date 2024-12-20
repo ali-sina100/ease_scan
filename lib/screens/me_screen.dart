@@ -86,7 +86,10 @@ class MeScreen extends StatelessWidget {
                                   ),
                                   actions: [
                                     SignedOutAction((context) {
-                                      Navigator.of(context).pop();
+                                          Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => LoginPage()),
+                                        );
                                     })
                                   ],
                               )));

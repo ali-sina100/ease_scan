@@ -48,7 +48,7 @@ class FileScreen extends StatelessWidget {
                   label: const Text("Import Image"),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Container(
